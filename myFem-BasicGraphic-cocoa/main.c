@@ -48,7 +48,8 @@ int main( void )
     float myX[5] = { 1.0, 0.0, 0.0,  1.0, -0.05} ;
 	float myY[5] = { 1.0,  1.0, 0.0, 0.0, -0.5} ;
 
-	//int i,j,I,J;
+    int i,j;
+    float I,J;
 
     do
     {
@@ -72,15 +73,16 @@ int main( void )
 		// Trace les segments de droite entre les noeuds
         glfemDrawElement(myX,myY,5);
         
-        // for(i = 0; i < 2; ++i)
-        // {
-        // 	for (int j = 0; i < 2; ++i)
-        // 	{
-        // 		I = (float)(i);
-        // 		J = (float)(j);
-        // 		glfemDrawElement(I,J,1);
-        // 	}
-        // }
+        //
+        for(i = 0; i < 2; ++i)
+        {
+         	for (j = 0; j < 2; ++j)
+         	{
+         		I = (float)(i);
+         		J = (float)(j);
+         		glfemDrawElement(&I,&J,1);
+         	}
+        }
 
         glColor3f (0.0, 1.0, 0.0); // Couleur des noeuds
         

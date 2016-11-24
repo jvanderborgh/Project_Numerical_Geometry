@@ -1,3 +1,5 @@
+
+
 #
 #  Makefile for MAC OS (cocoa) 
 #
@@ -7,14 +9,21 @@
 #  A adapter en fonction des ordinateurs/environnements 
 #  Compilateur, edition de liens, 
 #
-GLFWINCLUDE  = /Users/julienvdb/Documents/UCL_Master2/Q9/Numerical_Geometry_LMECA2170/Projet/glfw-3.2.1/include
-GLFWLIBRARY  = /Users/julienvdb/Documents/UCL_Master2/Q9/Numerical_Geometry_LMECA2170/Projet/glfw-3.2.1/build/src/libglfw3.a
-DEVLIB = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer
+GLFWINCLUDE  = glfw-3.2.1/include
+GLFWLIBRARY  = glfw-3.2.1/build/src/libglfw3.a
+
 #
 CC       = gcc  
 LD       = gcc
+ifeq ($(OS), Darwin)
+DEVLIB = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer
 CFLAGS   = -isysroot $(DEVLIB)/SDKs/MacOSX10.12.sdk -mmacosx-version-min=10.11 -I$(GLFWINCLUDE) -O3 -Dgraphic -Wall -g
 LFLAGS   = -isysroot $(DEVLIB)/SDKs/MacOSX10.12.sdk -mmacosx-version-min=10.11 -Wl,-search_paths_first -Wl,-headerpad_max_install_names -g -Wall -O3 -framework AGL -framework Cocoa -framework OpenGL -framework IOKit -framework CoreFoundation -framework CoreVideo
+else 
+#($(OS), Linux)
+	# put stuffs for linux here :-)
+endif
+
 LIBS     = $(GLFWLIBRARY) -lm
 #
 PROG     = myFem

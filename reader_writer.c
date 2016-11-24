@@ -67,7 +67,7 @@ MSH_ASSERT(filename!=NULL)
 	// we allocate much more to be sure (realloc a lesser size is fast)
 	*Data = (double*) malloc(5*nlines*sizeof(double)); 
 	
-	unsigned line;
+	unsigned line=0;
 	while(!feof(file)){
 		if(3*length>5*nlines) // should not happen if the first line is "normal"
 			*Data = (double*) realloc(*Data, 5*length*sizeof(double));
