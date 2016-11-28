@@ -7,6 +7,8 @@
  * @out Data:    interlaced nodes data: X0,Y0,Value0,X1,Y1,Value1,...
  * @return:      the number of nodes
  */
+
+// Je commente
 unsigned read_nodes_txt(const char* filename, double** Data);
 
 
