@@ -22,6 +22,9 @@ reader_writer.o: reader_writer.c reader_writer.h
 run: all
 	$(EXEC)
 
+gmsh: 
+	open ./Out/triangle.out
+
 coucou:
 	echo coucou
 
