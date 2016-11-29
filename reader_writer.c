@@ -97,11 +97,11 @@ MSH_ASSERT(filename!=NULL)
 
 void write_gmsh_txt(const char* filename, double* Data, unsigned dLength, unsigned* Triangles, unsigned tLength)
 {
-MSH_ASSERT(filename!=NULL);
+MSH_ASSERT(filename!=NULL); // Ok compris
 MSH_ASSERT(Data!=NULL);
 MSH_ASSERT(Triangles!=NULL);
 
-	FILE* file = fopen(filename,"w");
+	FILE* file = fopen(filename,"w"); //"w" argument pour dire qu'on écrit/write un fichier
 	if(file==NULL)
 		MSH_ERROR("Cannot open file %s",filename);
 
@@ -110,7 +110,7 @@ MSH_ASSERT(Triangles!=NULL);
 	             "2.2 0 %u\n"
 	             "$EndMeshFormat\n"
 	             "$Nodes\n"
-	             "%u\n",(unsigned) sizeof(double),dLength);
+	             "%u\n",(unsigned) sizeof(double),dLength); //u = Unsigned decimal integer
 	/* print the nodes */
 	unsigned i;
 	for (i=0; i<dLength; i++)
@@ -149,7 +149,7 @@ MSH_ASSERT(Triangles!=NULL);
 
 	/* format for gmsh */
 	fprintf(file,"$MeshFormat\n"
-	             "2.2 1 %u\n",(unsigned) sizeof(double));
+	             "2.2 1 %u\n",(unsigned) sizeof(double)); // Paramètre GMSH Change ici pour à notre avis mettre en binaire l'ecriture
 	int one = 1;
 	fwrite(&one, sizeof(int), 1, file);
 

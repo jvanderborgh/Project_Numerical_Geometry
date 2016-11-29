@@ -3,12 +3,11 @@
 #include "reader_writer.h"
 
 
-// Hey I add some comments to see what happen on the app Git
 int main(int argc, char const *argv[])
 {
 	// Data[3*i],Data[3*i+1] will contain ith node (for all i such that 0<=i<n)
 	double *Data;
-	unsigned n = read_nodes_txt("In/Exemple0.in", &Data);
+	unsigned n = read_nodes_txt("In/Exemple0.in", &Data); // n positif via unsigned
 
 	printf("X\tY\tValue\t(%u pts)\n", n);
 
@@ -25,6 +24,10 @@ int main(int argc, char const *argv[])
 	/* These are just 2 dummy triangles, 
 	 * you should normally find them with your triangulation
 	 */
+	/*for (int i = 0; i < 2000; ++i)
+	{
+			Triangles[] = 
+	}*/
 	// first triangle
 	Triangles[0] = 0;
 	Triangles[1] = 1;
