@@ -17,7 +17,7 @@ class Triangle;
   	/* More explanation about std::call below */
 
 // Pointeurs qui partagent le même triangle :-)
-typedef std::shared_ptr<Triangle>  Tptr; // Pointeur triangle 
+typedef std::shared_ptr<Triangle>  Tptr; // Pointeur partagé de triangle 
 typedef std::tuple<int,int,Tptr>   Edge; 
 
 class Point
@@ -25,7 +25,7 @@ class Point
   public:
 
     double x, y, z;
- 	/* 
+ 	  /* 
       Selon qu'on appelle Point avec 2 ou 3 arguments, la définition
       de l'objet est différent :-)
     */
@@ -51,17 +51,18 @@ Point operator*(const double &s, const Point &b)
   return Point(s*b.x, s*b.y, s*b.z);
 }
 
-Point operator*(const Point &b, const double &s) //Produit d'amplifcation (par constante s)
+/* Produit d'amplifcation (par constante s) */
+Point operator*(const Point &b, const double &s)
 {
   return s*b;
 }
-
-double dot(const Point a, const Point b) //Produit scalaire
+/* Produit scalaire */
+double dot(const Point a, const Point b)
 {
   return (a.x*b.x + a.y*b.y + a.z*b.z);
 }
-
-Point cross(const Point a, const Point b) //Produit vectoriel
+/* Produit vectoriel */
+Point cross(const Point a, const Point b)
 {
   return Point( a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-a.y*b.x );
 }
@@ -114,6 +115,7 @@ std::ostream& operator<<(std::ostream& os, const Tptr& T)
 */
 class DelaunayTriangulation
 {
+  /* FIRST WE START WITH THE PUBLIC METHODS */
   public:
 
     std::vector<Point> points;    // Create a vector of points (Point)
@@ -121,18 +123,38 @@ class DelaunayTriangulation
 
     DelaunayTriangulation(int width, int height)
     {
-      points.push_back( Point(0,     0) );
-      points.push_back( Point(width, 0) );
-      points.push_back( Point(width, height) );
-      points.push_back( Point(0,     height) );
+      /*
+          The following points will be the frame of our triangulation
+      */
+      points.push_back( Point(0,     0) ); // Centering the first point on (0,0)
+      points.push_back( Point(width, 0) ); // Add a point to the right
+      points.push_back( Point(width, height) ); // Add a point above to the right
+      points.push_back( Point(0,     height) ); // Add a point above
 
-      // Form the frame
+      /*
+        Form the frame and create two basic triangles
+        
+        Code comments:
+
+        -shared_ptr<T> make_shared( Args... args );
+        Construit un objet de type de T et l'enveloppe dans un std::shared_ptr 
+        utilisant args que la liste des paramètres pour le constructeur de T .
+
+        -auto variable initializer
+        Spécifie que le type de la variable qui est déclarée sera automatiquement déduit de son initialisation. Pour les fonctions, indique que le type de retour est un type de retour de fuite .
+
+      */
+
       auto T1 = std::make_shared<Triangle>(0, 3, 1);
       auto T2 = std::make_shared<Triangle>(2, 1, 3);
 
+      /*
+          Putting each other the triangles as neighbours 
+      */
       T1->n[0] = T2;
       T2->n[0] = T1;
 
+      /* Add the two new created triangles */
       triangles.push_back(T1);
       triangles.push_back(T2);
     }
@@ -142,12 +164,13 @@ class DelaunayTriangulation
       using namespace std; // http://cpp.developpez.com/faq/cpp/?page=Les-namespaces#Qu-est-ce-qu-un-namespace
 
       cout << "Points" << endl;
-      for (auto p : points)
+      for (auto p : points) /* For all points, print the points */
         cout << p << endl;
 
       cout << endl << "Triangles" << endl;
-      for (auto t : triangles)
+      for (auto t : triangles) /* For all triangles, print the triangles */
         cout << t << endl;
+        /* os << "(" << T->v[0] << ',' << T->v[1] << ',' << T->v[2] << "),"; */
     }
 
     void AddPoint(Point p)
@@ -157,22 +180,37 @@ class DelaunayTriangulation
 
       std::vector<Tptr> bad_triangles;
 
-      // For now I am just doing a naive search
-      // I hope to replace this one day with something different
+      /* For now I am just doing a naive search 
+         Car il fait une boucle for sur tous les triangles jusqu'à trouver le bon!
+         C'est pas très efficace...
+         I hope to replace this one day with something different 
+      */
       for (auto T : triangles)
       {
         if (CircumcircleContains(T, p))
-          bad_triangles.push_back(T);
+        bad_triangles.push_back(T); /* On répertorie le triangle contenant p*/
       }
 
-      // Find the boundary of the bad triangles
+      // Find the boundary of the bad triangles. See function below :-)
       std::vector<Edge> boundary = GetBoundary(bad_triangles);
 
-      // Remove all the bad triangles from the list of triangles
-      for (auto T : bad_triangles)
-        triangles.erase(std::remove(triangles.begin(), triangles.end(), T), triangles.end());
+      /* 
+        **** Remove all the bad triangles from the list of triangles ****
+        Note that all the bad triangles are the ones concerned by the point p
+        This is the one containing the point p BUT ALSO the ones who are the
+        neighbours of this last triangle...
 
-      // Retriangle the hole just created
+        Code comments: 
+        http://fr.cppreference.com/w/cpp/container/vector/erase used in parallel with std::remove
+        
+        Very simple example given here: http://fr.cppreference.com/w/cpp/algorithm/remove
+      */
+
+      for (auto T : bad_triangles)
+        triangles.erase(std::remove(triangles.begin(),triangles.end(), T), triangles.end());
+      // For remind, triangles is a public variables in class DelaunayTriangulation
+
+      /* Retriangle the hole just created */
       std::vector<Tptr> new_triangles;
       for (auto edge : boundary)
       {
@@ -201,6 +239,7 @@ class DelaunayTriangulation
       triangles.insert(triangles.end(), new_triangles.begin(), new_triangles.end());
     }
 
+  /* HERE WE CONTINUE WITH THE PRIVATE METHODS */
   private:
 
     // Check whether the circumcirlce of T contains p
@@ -221,7 +260,7 @@ class DelaunayTriangulation
     std::vector<Edge> GetBoundary(std::vector<Tptr> bad_triangles)
     {
 
-      // Start with a triangle at random
+      // Start with a triangle at random from the vector bad triangles
       Tptr T = bad_triangles[0];
       int edge = 0;
 
