@@ -202,13 +202,13 @@ class DelaunayTriangulation
 
         Code comments: 
         http://fr.cppreference.com/w/cpp/container/vector/erase used in parallel with std::remove
-        
         Very simple example given here: http://fr.cppreference.com/w/cpp/algorithm/remove
+
+        For remind, 'triangles' is a public variables in class DelaunayTriangulation
       */
 
       for (auto T : bad_triangles)
         triangles.erase(std::remove(triangles.begin(),triangles.end(), T), triangles.end());
-      // For remind, triangles is a public variables in class DelaunayTriangulation
 
       /* Retriangle the hole just created */
       std::vector<Tptr> new_triangles;
