@@ -183,7 +183,8 @@ class DelaunayTriangulation
       /* For now I am just doing a naive search 
          Car il fait une boucle for sur tous les triangles jusqu'à trouver le bon!
          C'est pas très efficace...
-         I hope to replace this one day with something different 
+         I hope to replace this one day with something different
+         Nous on va devoir réaliser via l'algorithme du cours!!!
       */
       for (auto T : triangles)
       {
@@ -191,7 +192,7 @@ class DelaunayTriangulation
         bad_triangles.push_back(T); /* On répertorie le triangle contenant p*/
       }
 
-      // Find the boundary of the bad triangles. See function below :-)
+      // Find the boundary/edges of the bad triangles. See function below :-)
       std::vector<Edge> boundary = GetBoundary(bad_triangles);
 
       /* 

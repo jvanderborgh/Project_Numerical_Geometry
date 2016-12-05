@@ -105,7 +105,7 @@ MSH_ASSERT(Triangles!=NULL);
 	if(file==NULL)
 		MSH_ERROR("Cannot open file %s",filename);
 
-	/* format for gmsh */
+	/* format for gmsh: in section 9.2 MSH binary file format */
 	fprintf(file,"$MeshFormat\n"
 	             "2.2 0 %u\n"
 	             "$EndMeshFormat\n"
@@ -137,7 +137,7 @@ MSH_ASSERT(Triangles!=NULL);
 
 
 
-void write_gmsh_bin(const char* filename, double* Data, unsigned dLength, unsigned* Triangles, unsigned tLength)
+void write_gmsh_bin(const char* filename, double* Data, unsigned dLength, unsigned* Triangles, unsigned tLength) //bin=binary
 {
 MSH_ASSERT(filename!=NULL);
 MSH_ASSERT(Data!=NULL);
