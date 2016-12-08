@@ -1,3 +1,7 @@
+#ifndef __STRUCTURES_H__
+#define __STRUCTURES_H__
+
+
 #include <stdio.h>
 #include <algorithm>
 #include <vector>
@@ -5,21 +9,30 @@
 
 struct Vertex // In the course (num and bits added)
 {
-  int num;
+  int num,(*bits); /* max 10 bits */
   double x,y,z;
-  int (*bits); // max 10 bits
-  Vertex (int Num, double X, double Y, double Z, int (*Bits)) : 
-  num(Num),x(X),y(Y),z(Z),bits(Bits){}
+
+  /* Constructeur */
+  Vertex (int Num, double X, double Y, double Z, int (*Bits)) : num(Num), x(X), y(Y), z(Z), bits(Bits)
+  {/* Il n'y as pas de méthodes définies sur cet objet :-) */}
+  
+  /* Constructeur */
+  Vertex (double X, double Y, double Z) : x(X),y(Y),z(Z) 
+  {/* Il n'y as pas de méthodes définies sur cet objet :-) */}
+  
+
 };
 
 struct Edge //In the course
 {
   Vertex *vmin,*vmax;
-  Edge (Vertex *v1, Vertex *v2)
+  /* Constructeur */
+  Edge(Vertex *v1, Vertex *v2)
   {
     vmin = std::min(v1,v2);
     vmax = std::max(v1,v2);
   }
+  /* Methode de redefinition de l'opérateur " < " */
   bool operator < (const Edge &other) const
   {
     if(vmin<other.vmin) return true;
@@ -28,32 +41,38 @@ struct Edge //In the course
     return false;
   }
 };
+
+/**** METHODE DE ROBUST PREDICATES *****/
 int orientationTest(Vertex *a, Vertex *b, Vertex *c); //Can be found in rubust predicate
+/**** METHODE DE ROBUST PREDICATES *****/
 
 struct Face
 {
   Face *F[3];
   Vertex *V[3];
-  bool deleted;
+  /* Initialisation variable booleenne de nom "deleted" */
+  bool deleted; 
+  /* Constructeur Face */
   Face (Vertex *v0, Vertex *v1, Vertex *v2) 
   {
-     int ori = orientationTest(v0,v1,v2);//added for orientation
-    if (ori > 0){
-      // printf("ori = %i \n",ori);
+    int ori = orientationTest(v0,v1,v2);   //added for orientation
+    if (ori > 0)
+    { // printf("ori = %i \n",ori);
       V[0] = v0; V[1] = v1; V[2] = v2;
-      }
-      else{
+    }
+    else
+    {
       V[0] = v1; V[1] = v0; V[2] = v2;
-      }
+    }
     F[0] = F[1] = F[2] = NULL;
     deleted = false; //In the course
   } 
-  Edge getEdge ( int k) 
+  Edge getEdge(int k) 
   {
-    return Edge (V[k] ,V[(k+1)%3]) ;
+    return Edge(V[k],V[(k+1)%3]) ;
   }
-  bool inCircle (Vertex *d) //Can be found in robust predicate
- {
+  bool inCircle (Vertex *d) //Can be found in Robust Predicates
+  {
    // Matrix for incircle test
    // a = V0, b = V1 and c = V2
    double a11 = (V[0]->x) - (d->x);  double a12 = (V[0]->y) - (d->y); double a13 = a11*a11 + a12*a12;
@@ -70,15 +89,10 @@ struct Face
    
   // d lies inside or on the circle
   if(sign*det >= 0.0)
-  {
     return true;
-  }
   // d lies outside 
   else
-  {
     return false;
-    
-  }
  }
  Vertex centroid () //Function not given
   {
@@ -90,12 +104,18 @@ struct Face
 };
 
 
-// structure of functions
+/********* Signatures of functions *********/
 
+bool trie(Vertex* a, Vertex* b);
+void swap(double& a, double& b); // AS: not in the course
+
+
+/********* Functions of the course *********/
+
+void HilbertCoord(double x, double y,double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, int d, int bits[]);
 void computeAdjacencies(std::vector<Face*> &cavity);
-
 void delaunayCavity(Face *f, Vertex *v, std::vector<Face*> &cavity, std::vector<Edge> &bnd, std::vector<Face*> &otherSide);
-
 Face* lineSearch(Face *f, Vertex *v);
-
 void delaunayTrgl (std::vector<Vertex*> &S, std::vector<Face*> &T,char *name);
+#endif
+
