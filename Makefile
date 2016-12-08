@@ -1,9 +1,11 @@
-CC=gcc
+CC=g++
+#gcc si on travaille avec c normal
+#g++ si on fait des classes cpp
 CFLAGS=-Wall -Werror -O3
 LDFLAGS=-lm 
 # -lm rajoute les librairies standards par exemple mais ya moyen d'en ajouter d'autres Google est ton ami :-)
 EXEC=./exec
-SRC= $(wildcard *.c) 
+SRC= $(wildcard *.cpp) 
 #SOURCES
 OBJ= $(SRC:.c=.o)
 #OBJETS
@@ -13,11 +15,21 @@ all: $(EXEC)
 $(EXEC): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-reader_writer.o: reader_writer.cpp reader_writer.h delaunay.h
+#main.o: main.c reader_writer.h
+#	$(CC) -o $@ -c $< $(CFLAGS)
+
+reader_writer.o: reader_writer.cpp reader_writer.h
 	$(CC) -o $@ -cpp $< $(CFLAGS)
 
-#monfichier.o: monfichier.c dependence1.h dependence2.h
-#	$(CC) -o $@ -c $< $(CFLAGS)
+#DT.o: DT.cpp DT.h
+#	$(CC) -o $@ -cpp $< $(CFLAGS)
+
+#main.o: main.cpp reader_writer.h
+#	$(CC) -o $@ -cpp $< $(CFLAGS)
+
+
+#monfichier.o: monfichier.cpp dependence1.h dependence2.h
+#	$(CC) -o $@ -cpp $< $(CFLAGS)
 
 run: all
 	$(EXEC)
@@ -32,7 +44,7 @@ coucou:
 	echo coucou
 
 clean:
-	rm -rf *.o
+	rm -rf *.o ./Out/hilbert.out
 
 mrproper: clean
 	rm -rf $(EXEC)

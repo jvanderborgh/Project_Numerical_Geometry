@@ -1,6 +1,6 @@
-#include<stdio.h>
-#include<algorithm>
-#include<vector>
+#include <stdio.h>
+#include <algorithm>
+#include <vector>
 
 
 struct Vertex 

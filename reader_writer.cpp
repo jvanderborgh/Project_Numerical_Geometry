@@ -120,9 +120,15 @@ MSH_ASSERT(Triangles!=NULL);
                  "$Elements\n"
                  "%u\n",sLength);
 	for (i=0; i<sLength; i++)
-		fprintf(file,"%u 1 0 %u %u %u\n",i+1,Edges[3*i]+1,
-			                                 Edges[3*i+1]+1,
-			                               	 Edges[3*i+2]+1);
+		fprintf(file,"%u 1 0 %u %u\n",i+1,Edges[i]+1,
+			                              Edges[i+1]+1);
+	// fprintf(file,"1 1 0 1 2\n");
+	// fprintf(file,"2 1 0 2 3\n");
+	// fprintf(file,"3 1 0 3 4\n");
+	// fprintf(file,"4 1 0 4 5\n");
+	// fprintf(file,"5 1 0 5 6\n");
+
+
 	fputs("$EndElements\n",file);
 	fprintf(file,"$NodeData\n"
 		         "1\n\"Hilbert_Sorting\"\n"
