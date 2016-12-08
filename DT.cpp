@@ -11,7 +11,7 @@ using namespace std; // std::vector -> vector
 
 
 // compare function to class vertex 
-bool trie(Vertex* a, Vertex* b)
+bool trie(Vertex* a, Vertex* b) // AS : Not int the course
 {
   // printf("bits = %i \n",a->bits[0]);
   for(int i = 0; i < sizeof(a->bits) ;i++)
@@ -30,14 +30,14 @@ bool trie(Vertex* a, Vertex* b)
   
 }
 // swap
-void swap(double& a, double& b)
+void swap(double& a, double& b) // AS: not in the course
 {
   double temp = a;
   a = b;
   b = temp;
 }
 
-// hilbert coordinate for a vertex
+// hilbert coordinate for a vertex AS: In the course
 void HilbertCoord(double x, double y,double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, int d, int bits[])
 {
   //free(bits);
@@ -76,7 +76,7 @@ void HilbertCoord(double x, double y,double x0, double y0, double xRed, double y
 }
 
 
-int orientationTest(Vertex *a,Vertex *b, Vertex *c)
+int orientationTest(Vertex *a,Vertex *b, Vertex *c) //AS:give in robustPredicate
 {	
 	// formula in syllabus p.25
   // non-robust
@@ -103,7 +103,7 @@ int orientationTest(Vertex *a,Vertex *b, Vertex *c)
 	 }
 }
 
-void computeAdjacencies (std::vector<Face*> &cavity)
+void computeAdjacencies (std::vector<Face*> &cavity) //AS: in the course
 {
     std::map<Edge, std::pair<int , Face* > >edgeToFace;
 
@@ -116,20 +116,21 @@ void computeAdjacencies (std::vector<Face*> &cavity)
 	    std::map < Edge, std::pair < int, Face* > >::iterator it = edgeToFace.find(edge);
 
 	    if(it == edgeToFace.end())
-            {
+            {// edge has not yet been touched , so create an entry
                 edgeToFace.insert(std::make_pair (edge,std::make_pair(iEdge, cavity[iFace])));
             }
             else
-            {
+            { // Connect the two neighboring triangles
                 cavity[iFace]->F[iEdge]  = it->second.second;
                 it->second.second->F[it->second.first] = cavity[iFace];
+                // Erase edge from the map
                 edgeToFace.erase(it);
             }
         }
     }
 }
 
-void delaunayCavity(Face *f, Vertex *v, std::vector<Face*> &cavity, std::vector<Edge> &bnd, std::vector<Face*> &otherSide)
+void delaunayCavity(Face *f, Vertex *v, std::vector<Face*> &cavity, std::vector<Edge> &bnd, std::vector<Face*> &otherSide) //AS: In the course without the lines commented
 {
   //printf("delaunayCavity, bnd  = %i and cavity = %i and other = %i \n",bnd.size(),cavity.size(),otherSide.size());
     if(f->deleted)
@@ -163,7 +164,7 @@ void delaunayCavity(Face *f, Vertex *v, std::vector<Face*> &cavity, std::vector<
     }
 }
 
-Face* lineSearch(Face *f, Vertex *v){
+Face* lineSearch(Face *f, Vertex *v){ //AS: In the course without the commented line
   // printf("Sommet (%lf,%lf,%lf)\n",v[0].x,v[0].y,v[0].z);
 
   while(1) {
@@ -200,7 +201,7 @@ Face* lineSearch(Face *f, Vertex *v){
 }
 
 
-void P ( std::vector<Vertex*> &S, std::vector<Face*> &T, char *name)
+void P ( std::vector<Vertex*> &S, std::vector<Face*> &T, char *name) //AS : reader_writer
 {
   FILE* fichierout = fopen(name,"w");
 // ecriture dans le fichier
@@ -228,16 +229,16 @@ void P ( std::vector<Vertex*> &S, std::vector<Face*> &T, char *name)
  
  fclose(fichierout);
 }
-
+//AS : !!!! different
 void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T,char *name)
 {    
-    for(int iP=4; iP<S.size()-3; iP++)
+    for(int iP=4; iP<S.size()-3; iP++) //AS: in the course : int iP=0 ; iP < S . size ( ) ; iP++
 	{
 	  // Pour ecrire dans le fichier
 	  //char name[256];
 	  //sprintf(name,"pt%d.geo",0);
-	  P(S,T,name);
-	  Face *f = lineSearch(T[0], S[iP]);
+	  P(S,T,name); //AS : not in the course
+	  Face *f = lineSearch(T[0], S[iP]); //not in the course
 
 	  /*  if (!f) {
 	    continue;
@@ -250,22 +251,22 @@ void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T,char *name)
 
 	  delaunayCavity(f, S[iP], cavity, bnd, otherSide);
 	  //  printf("throw iP, bnd  = %i and cavity = %i ans other = %i \n",bnd.size(),cavity.size(),otherSide.size());
-	  if(bnd.size() != cavity.size() + 2) throw iP;
+	  if(bnd.size() != cavity.size() + 2) throw iP; //AS : without IPP
 	  // printf("throw iP 2 \n");
 	  for (int i=0; i<cavity.size(); i++)
 	    {
 	      // reuse memory slots of invalid elements
 	      cavity[i]->deleted = false;
 	      cavity[i]->F[0] = cavity[i]->F[1] = cavity[i]->F[2] = NULL;
-	      cavity[i]->V[0] = bnd[i].vmin;
-	      cavity[i]->V[1] = bnd[i].vmax;
+	      cavity[i]->V[0] = bnd[i].vmin; // As: In course = bnd[ i ] .V[ 0 ] ;
+	      cavity[i]->V[1] = bnd[i].vmax; // AS : In course =bnd[ i ] .V[ 1 ] ;
 	      cavity[i]->V[2] = S[iP];
 	    }
 
 	  //
-	    for (int i=0; i<otherSide.size(); i++)
+	    for (int i=0; i<otherSide.size(); i++) //AS : Not in the course
 	      {
-		otherSide[i]->deleted = false;
+		otherSide[i]->deleted = false; 
 	      }
 	 
 	  unsigned int cSize = cavity.size();
@@ -291,7 +292,7 @@ void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T,char *name)
 
 
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[]) //AS : Some stuff in main? TO do again
 {
   // to mesure time execution
   clock_t start, finish; 
