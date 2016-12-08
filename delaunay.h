@@ -1,15 +1,17 @@
 #pragma once
 
 /*
- * This library is for performed delaunay triangulation using an increamental algorithm
+ * This library is for performed delaunay triangulation using an incremental algorithm
  */
 
-#include <algorithm> // useful for std::min
+#include <algorithm> // useful for std::min N'est pas reconnu! :-(
+ 
 #include <memory>
 // #include <vector>;
 #include <iostream>
 
 class Point;
+class Segment;
 class Triangle;
 
 // Typedef is used to define new types of variables

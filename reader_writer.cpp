@@ -94,6 +94,47 @@ MSH_ASSERT(filename!=NULL)
 }
 
 
+void write_gmsh_hilbert(const char* filename, double* Data, unsigned dLength, unsigned* Edges, unsigned sLength)
+{
+MSH_ASSERT(filename!=NULL); // Ok compris
+MSH_ASSERT(Data!=NULL);
+MSH_ASSERT(Triangles!=NULL);
+
+	FILE* file = fopen(filename,"w"); //"w" argument pour dire qu'on écrit/write un fichier
+	if(file==NULL)
+		MSH_ERROR("Cannot open file %s",filename);
+
+	/* format for gmsh: in section 9.2 MSH binary file format */
+	fprintf(file,"$MeshFormat\n"
+	             "2.2 0 %u\n"
+	             "$EndMeshFormat\n"
+	             "$Nodes\n"
+	             "%u\n",(unsigned) sizeof(double),dLength); //u = Unsigned decimal integer
+	/* print the nodes */
+	unsigned i;
+	for (i=0; i<dLength; i++)
+		fprintf(file,"%u %.10E %.10E 0.0\n",i+1,Data[3*i],Data[3*i+1]);
+               //    i+1 Data[3*i] ... et z=0.0 (not 3D! :-P)
+	/* print the elements */
+	fprintf(file,"$EndNodes\n"
+                 "$Elements\n"
+                 "%u\n",sLength);
+	for (i=0; i<sLength; i++)
+		fprintf(file,"%u 1 0 %u %u %u\n",i+1,Edges[3*i]+1,
+			                                 Edges[3*i+1]+1,
+			                               	 Edges[3*i+2]+1);
+	fputs("$EndElements\n",file);
+	fprintf(file,"$NodeData\n"
+		         "1\n\"Hilbert_Sorting\"\n"
+		         "1\n0.0\n3\n0\n1\n%u\n",dLength);
+
+	for (i=0; i<dLength; i++)
+		fprintf(file,"%u %.10E\n",i+1, Data[3*i+2]);
+	fputs("$EndNodeData",file);
+	fclose(file);
+}
+
+
 
 void write_gmsh_txt(const char* filename, double* Data, unsigned dLength, unsigned* Triangles, unsigned tLength)
 {

@@ -19,7 +19,10 @@ unsigned read_nodes_txt(const char* filename, double** Data);
  * @in dLength:   the number of nodes
  * @in Triangles: triangles node indices: T0_node0,T0_node1,T0_node2,T1_node0,T1_node1,T1_node2,
  * @in tLength:   the number of triangles
+ * @in Segments:  edges node indices: E0_node0, E0_node1 etc 
+ * @in sLength:   the number of segments in Hilbert sort
  */
+void write_gmsh_hilbert(const char* filename, double* Data, unsigned dLength, unsigned* Triangles, unsigned tLength);
 void write_gmsh_txt(const char* filename, double* Data, unsigned dLength, unsigned* Triangles, unsigned tLength);
 void write_gmsh_bin(const char* filename, double* Data, unsigned dLength, unsigned* Triangles, unsigned tLength);
 

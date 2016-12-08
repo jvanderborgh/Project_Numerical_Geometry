@@ -13,11 +13,8 @@ all: $(EXEC)
 $(EXEC): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-reader_writer.o: reader_writer.c reader_writer.h
-	$(CC) -o $@ -c $< $(CFLAGS)
-
-#main.o: main.cpp reader_writer.hpp
-#	$(CC) -o $@ -c $< $(CFLAGS)
+reader_writer.o: reader_writer.cpp reader_writer.h delaunay.h
+	$(CC) -o $@ -cpp $< $(CFLAGS)
 
 #monfichier.o: monfichier.c dependence1.h dependence2.h
 #	$(CC) -o $@ -c $< $(CFLAGS)
@@ -27,6 +24,9 @@ run: all
 
 gmsh: 
 	open ./Out/triangle.out
+
+hilbert:
+	open ./Out/hilbert.out
 
 coucou:
 	echo coucou
