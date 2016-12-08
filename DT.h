@@ -3,7 +3,7 @@
 #include<vector>
 
 
-struct Vertex 
+struct Vertex // In the course (num and bits added)
 {
   int num;
   double x,y,z;
@@ -12,32 +12,32 @@ struct Vertex
   num(Num),x(X),y(Y),z(Z),bits(Bits){}
 };
 
-struct Edge
+struct Edge //In the course
 {
-	Vertex *vmin,*vmax;
-	Edge (Vertex *v1, Vertex *v2)
-	{
-		vmin = std::min(v1,v2);
-		vmax = std::max(v1,v2);
-	}
-	bool operator < (const Edge &other) const
-	{
-		if(vmin<other.vmin) return true;
-		if(vmin>other.vmin) return false;
-		if(vmax<other.vmax) return true;
-		return false;
-	}
+  Vertex *vmin,*vmax;
+  Edge (Vertex *v1, Vertex *v2)
+  {
+    vmin = std::min(v1,v2);
+    vmax = std::max(v1,v2);
+  }
+  bool operator < (const Edge &other) const
+  {
+    if(vmin<other.vmin) return true;
+    if(vmin>other.vmin) return false;
+    if(vmax<other.vmax) return true;
+    return false;
+  }
 };
-int orientationTest(Vertex *a, Vertex *b, Vertex *c);
+int orientationTest(Vertex *a, Vertex *b, Vertex *c); //added
 
 struct Face
 {
-	Face *F[3];
-	Vertex *V[3];
+  Face *F[3];
+  Vertex *V[3];
   bool deleted;
   Face (Vertex *v0, Vertex *v1, Vertex *v2) 
   {
-     int ori = orientationTest(v0,v1,v2);
+     int ori = orientationTest(v0,v1,v2);//added for orientation
     if (ori > 0){
       // printf("ori = %i \n",ori);
       V[0] = v0; V[1] = v1; V[2] = v2;
@@ -46,13 +46,13 @@ struct Face
       V[0] = v1; V[1] = v0; V[2] = v2;
       }
     F[0] = F[1] = F[2] = NULL;
-    deleted = false; 
+    deleted = false; //In the course
   } 
   Edge getEdge ( int k) 
   {
     return Edge (V[k] ,V[(k+1)%3]) ;
   }
-  bool inCircle (Vertex *d)
+  bool inCircle (Vertex *d) //Function not given
  {
    // Matrix for incircle test
    // a = V0, b = V1 and c = V2
@@ -70,22 +70,22 @@ struct Face
    
   // d lies inside or on the circle
   if(sign*det >= 0.0)
-	{
- 		return true;
-	}
+  {
+    return true;
+  }
   // d lies outside 
   else
-	{
-		return false;
-		
-	}
- }
- Vertex centroid () 
   {
-	double cx = ((V[0]->x) + (V[1]->x) + (V[2]->x));	
-	double cy = ((V[0]->y) + (V[1]->y) + (V[2]->y));
-	double cz = ((V[0]->z) + (V[1]->z) + (V[2]->z));
-   	return Vertex(-100,cx/3.0,cy/3.0,cz/3.0,V[0]->bits); // bits aleatoire qui ne servira a rien
+    return false;
+    
+  }
+ }
+ Vertex centroid () //Function not given
+  {
+  double cx = ((V[0]->x) + (V[1]->x) + (V[2]->x));  
+  double cy = ((V[0]->y) + (V[1]->y) + (V[2]->y));
+  double cz = ((V[0]->z) + (V[1]->z) + (V[2]->z));
+    return Vertex(-100,cx/3.0,cy/3.0,cz/3.0,V[0]->bits); // bits aleatoire qui ne servira a rien
   }
 };
 
