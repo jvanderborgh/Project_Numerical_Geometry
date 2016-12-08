@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // #include "DT.h"
 // #include <stdio.h>
 // #include<stdlib.h>
@@ -24,10 +25,39 @@
 // 	{
 // 	  return false;
 // 	}
+=======
+#include "DT.h"
+#include <stdio.h>
+#include<stdlib.h>
+#include<time.h>
+#include <vector> // for std::vector
+#include <map> // for std::map
+#include <cmath>
+#include <iostream>
+using namespace std; // std::vector -> vector
+
+
+
+// compare function to class vertex 
+bool trie(Vertex* a, Vertex* b) // AS : Not int the course
+{
+  // printf("bits = %i \n",a->bits[0]);
+  for(int i = 0; i < sizeof(a->bits) ;i++)
+     {
+       if(a->bits[i] < b->bits[i]) // return true if a < b
+	{
+	  return true;
+	}
+         if(a->bits[i] > b->bits[i]) // return false if a > b
+	{
+	  return false;
+	}
+>>>>>>> a77e48d87f8cea19034c486472db5961494b3d32
 	
 // 	}
 //   return false; // if a == b
   
+<<<<<<< HEAD
 // }
 // // swap
 // void swap(double& a, double& b)
@@ -172,6 +202,153 @@
 // 	//	printf("return 1 \n");
 // 	return NULL; // we should NEVER return here
 //       }
+=======
+}
+// swap
+void swap(double& a, double& b) // AS: not in the course
+{
+  double temp = a;
+  a = b;
+  b = temp;
+}
+
+// hilbert coordinate for a vertex AS: In the course
+void HilbertCoord(double x, double y,double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, int d, int bits[])
+{
+  //free(bits);
+  //bits = new int[10];
+  for(int i = 0; i<d; i++)
+    {
+      double coordRed = (x-x0)* xRed + (y-y0) * yRed;
+      double coordBlue = (x-x0) * xBlue + (y-y0) * yBlue;
+      xRed/=2; yRed/=2; xBlue/=2; yBlue/=2;
+
+      if (coordRed <= 0 && coordBlue <= 0) // quadrant 0
+	{
+	  x0 -= (xBlue+xRed); y0 -= (yBlue+yRed);
+	  swap(xRed,xBlue) ; swap(yRed,yBlue) ;
+	  bits[i] = 0;
+	}
+      else if (coordRed <= 0 && coordBlue >=0) // quadrant 1
+	{
+	  x0 += (xBlue-xRed); y0 += (yBlue+yRed);
+	  bits[i] = 1;
+	}
+      else if (coordRed >= 0 && coordBlue >= 0) // quadrant 2
+	{
+	  x0 += (xBlue+xRed); y0 += (yBlue+yRed);
+	  bits[i] = 2;
+	}
+      else if(coordRed >= 0 && coordBlue <=0) // quadrant 3
+	{
+	  x0 +=(-xBlue+xRed); y0 += (-yBlue+yRed);
+	  swap(xRed,xBlue); swap(yRed,yBlue);
+	  xBlue = -xBlue; yBlue = -yBlue;
+	  xRed = -xRed; yRed = -yRed;
+	  bits[i] = 3;
+	}
+    }
+}
+
+
+int orientationTest(Vertex *a,Vertex *b, Vertex *c) //AS:give in robustPredicate
+{	
+	// formula in syllabus p.25
+  // non-robust
+    double a11 = (a->x)-(c->x) ;
+    double a12 = (a->y)-(c->y);
+    double a21 = (b->x)-(c->x);
+    double a22 = (b->y)-(c->y);
+    double sign = (a11*a22)-(a21*a12);
+
+	if (sign > 0.0) 
+	{
+	  // printf("1 \n");
+	 return 1;
+	}
+	else if (sign < 0.0)
+	{
+	  //printf("-1 \n");
+	 return -1;
+	}
+		else
+	{
+	  //printf("0 \n");
+	 return 0;
+	 }
+}
+
+void computeAdjacencies (std::vector<Face*> &cavity) //AS: in the course
+{
+    std::map<Edge, std::pair<int , Face* > >edgeToFace;
+
+    for(int iFace=0 ; iFace<cavity.size() ; iFace++)
+    {
+        for (int iEdge=0; iEdge < 3 ; iEdge ++)
+        {
+            Edge edge = cavity[iFace]->getEdge(iEdge);
+
+	    std::map < Edge, std::pair < int, Face* > >::iterator it = edgeToFace.find(edge);
+
+	    if(it == edgeToFace.end())
+            {// edge has not yet been touched , so create an entry
+                edgeToFace.insert(std::make_pair (edge,std::make_pair(iEdge, cavity[iFace])));
+            }
+            else
+            { // Connect the two neighboring triangles
+                cavity[iFace]->F[iEdge]  = it->second.second;
+                it->second.second->F[it->second.first] = cavity[iFace];
+                // Erase edge from the map
+                edgeToFace.erase(it);
+            }
+        }
+    }
+}
+
+void delaunayCavity(Face *f, Vertex *v, std::vector<Face*> &cavity, std::vector<Edge> &bnd, std::vector<Face*> &otherSide) //AS: In the course without the lines commented
+{
+  //printf("delaunayCavity, bnd  = %i and cavity = %i and other = %i \n",bnd.size(),cavity.size(),otherSide.size());
+    if(f->deleted)
+     {
+       // printf("if f-> deleted \n");
+     	return;
+     }
+    //printf("after \n");
+    f->deleted = true; // Mark the triangle
+    cavity.push_back(f);
+    //printf("delaunayCavity push_back, bnd  = %i and cavity = %i \n",bnd.size(),cavity.size());
+    for(int iNeigh=0; iNeigh<3; iNeigh++)
+    {
+        if(f->F[iNeigh] == NULL)
+	{
+            bnd.push_back(f->getEdge(iNeigh));
+	    // printf("delaunayCavity NULL bnd.push_back, bnd  = %i and cavity = %i \n",bnd.size(),cavity.size());
+        }
+        else if(!f->F[iNeigh]->inCircle(v))
+        {
+            bnd.push_back(f->getEdge(iNeigh));
+	    // printf("delaunayCavity incircle bnd.push_back, bnd  = %i and cavity = %i \n",bnd.size(),cavity.size());
+
+	    if(!f->F[iNeigh]->deleted)
+		{
+                	otherSide.push_back(f->F[iNeigh]);  
+                	f->F[iNeigh]->deleted = true;       
+            	}
+        }
+        else delaunayCavity(f->F[iNeigh], v, cavity, bnd, otherSide);
+    }
+}
+
+Face* lineSearch(Face *f, Vertex *v){ //AS: In the course without the commented line
+  // printf("Sommet (%lf,%lf,%lf)\n",v[0].x,v[0].y,v[0].z);
+
+  while(1) {
+    // printf("Oz \n");
+      if(f==NULL){
+	//	printf("return 1 \n");
+	return NULL; // we should NEVER return here
+      }
+>>>>>>> a77e48d87f8cea19034c486472db5961494b3d32
       
 //       if(f->inCircle(v)){
 // 	//	printf("incircle\n");
@@ -179,6 +356,7 @@
 //       }
 //       Vertex c = f->centroid();  
       
+<<<<<<< HEAD
 //       for(int iNeigh=0; iNeigh<3; iNeigh++) {	
 // 	Edge e = f->getEdge(iNeigh);
 // 	//	printf("ori \n");
@@ -209,6 +387,38 @@
 //  fprintf(fichierout,"$EndMeshFormat \n");
 //  fprintf(fichierout,"$Nodes\n");
 //  fprintf(fichierout,"%i\n",(int)S.size());
+=======
+      for(int iNeigh=0; iNeigh<3; iNeigh++) {	
+	Edge e = f->getEdge(iNeigh);
+	//	printf("ori \n");
+	if( orientationTest (&c, v, e.vmin) *
+	    orientationTest (&c, v, e.vmax) <0
+	    &&
+	    orientationTest (e.vmin, e.vmax, &c) *
+	    orientationTest (e.vmin, e.vmax,  v) <0)
+	  {
+	    //printf("if \n");
+	    f = f->F[iNeigh];   		
+	    break;              
+	  }
+	//	printf("break\n");
+      }
+      // printf("NEVER \n");
+      // return NULL; // we should NEVER return here
+    }
+}
+
+
+void P ( std::vector<Vertex*> &S, std::vector<Face*> &T, char *name) //AS : reader_writer
+{
+  FILE* fichierout = fopen(name,"w");
+// ecriture dans le fichier
+ fprintf(fichierout,"$MeshFormat \n");
+ fprintf(fichierout,"2.2 0 8 \n");
+ fprintf(fichierout,"$EndMeshFormat \n");
+ fprintf(fichierout,"$Nodes\n");
+ fprintf(fichierout,"%i\n",(int)S.size());
+>>>>>>> a77e48d87f8cea19034c486472db5961494b3d32
  
 //  int node,node2,node3;
  
@@ -226,6 +436,7 @@
 //    }
 //  fprintf(fichierout,"$EndElements\n");
  
+<<<<<<< HEAD
 //  fclose(fichierout);
 // }
 
@@ -321,6 +532,103 @@
 //  double x0 = 0.0;  double y0 = 0.0;
 //  double xRed = 0.0;  double xBlue = 0.0;
 //  double yRed = 0.0;  double yBlue = 0.0;
+=======
+ fclose(fichierout);
+}
+//AS : !!!! different
+void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T,char *name)
+{    
+    for(int iP=4; iP<S.size()-3; iP++) //AS: in the course : int iP=0 ; iP < S . size ( ) ; iP++
+	{
+	  // Pour ecrire dans le fichier
+	  //char name[256];
+	  //sprintf(name,"pt%d.geo",0);
+	  P(S,T,name); //AS : not in the course
+	  Face *f = lineSearch(T[0], S[iP]); //not in the course
+
+	  /*  if (!f) {
+	    continue;
+	    }*/
+	   
+	
+	  std::vector<Face*> cavity   ; 
+	  std::vector<Edge> bnd       ; 
+	  std::vector<Face*> otherSide; 
+
+	  delaunayCavity(f, S[iP], cavity, bnd, otherSide);
+	  //  printf("throw iP, bnd  = %i and cavity = %i ans other = %i \n",bnd.size(),cavity.size(),otherSide.size());
+	  if(bnd.size() != cavity.size() + 2) throw iP; //AS : without IPP
+	  // printf("throw iP 2 \n");
+	  for (int i=0; i<cavity.size(); i++)
+	    {
+	      // reuse memory slots of invalid elements
+	      cavity[i]->deleted = false;
+	      cavity[i]->F[0] = cavity[i]->F[1] = cavity[i]->F[2] = NULL;
+	      cavity[i]->V[0] = bnd[i].vmin; // As: In course = bnd[ i ] .V[ 0 ] ;
+	      cavity[i]->V[1] = bnd[i].vmax; // AS : In course =bnd[ i ] .V[ 1 ] ;
+	      cavity[i]->V[2] = S[iP];
+	    }
+
+	  //
+	    for (int i=0; i<otherSide.size(); i++) //AS : Not in the course
+	      {
+		otherSide[i]->deleted = false; 
+	      }
+	 
+	  unsigned int cSize = cavity.size();
+
+	  for(int i=cSize; i<cSize+2; i++)
+	    {
+	      Face *newf = new Face(bnd[i].vmin,bnd[i].vmax,S[iP]);
+	      T.push_back(newf);
+	      cavity.push_back(newf);
+	    }
+
+	  for(int i=0; i<otherSide.size(); i++)
+	    {
+	      if(otherSide[i])
+		{
+		  cavity.push_back(otherSide[i]);
+		}
+	    }
+	  computeAdjacencies(cavity);
+	}
+}
+
+
+
+
+int main(int argc, char *argv[]) //AS : Some stuff in main? TO do again
+{
+  // to mesure time execution
+  clock_t start, finish; 
+	double duration;
+	start = clock();
+  //printf("test\n");
+  FILE* fichierin = fopen(argv[1],"r");
+  //printf("test 2 \n");
+
+  std::vector<Vertex*> S;
+  std::vector<Face*> T;
+
+  struct Vertex *v0;
+
+  double a,b,c;
+  double xmin = 0.0; double xmax = 0.0;
+  double ymin = 0.0; double ymax = 0.0;
+  int ligne = 0;
+
+  // Initial Hilbert variables
+ int d = 50;
+ /* int bits[10];
+ for(int i = 0;i<10;i++)
+   {
+     bits[i] = 0;
+     }*/
+ double x0 = 0.0;  double y0 = 0.0;
+ double xRed = 0.0;  double xBlue = 0.0;
+ double yRed = 0.0;  double yBlue = 0.0;
+>>>>>>> a77e48d87f8cea19034c486472db5961494b3d32
 
 
  
