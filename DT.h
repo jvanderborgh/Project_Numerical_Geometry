@@ -28,7 +28,7 @@ struct Edge //In the course
     return false;
   }
 };
-int orientationTest(Vertex *a, Vertex *b, Vertex *c); //added
+int orientationTest(Vertex *a, Vertex *b, Vertex *c); //Can be found in rubust predicate
 
 struct Face
 {
@@ -52,7 +52,7 @@ struct Face
   {
     return Edge (V[k] ,V[(k+1)%3]) ;
   }
-  bool inCircle (Vertex *d) //Function not given
+  bool inCircle (Vertex *d) //Can be found in robust predicate
  {
    // Matrix for incircle test
    // a = V0, b = V1 and c = V2
