@@ -18,6 +18,9 @@ $(EXEC): $(OBJ)
 reader_writer.o: reader_writer.cpp reader_writer.h
 	$(CC) -o $@ -cpp $< $(CFLAGS)
 
+structures.o: structures.cpp structures.h
+	$(CC) -o $@ -cpp $< $(CFLAGS)	
+
 #DT.o: DT.cpp DT.h
 #	$(CC) -o $@ -cpp $< $(CFLAGS)
 

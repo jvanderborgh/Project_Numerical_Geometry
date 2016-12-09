@@ -28,7 +28,7 @@
 #endif
 
 
-/* gives an approximation for the number of lines in the file */
+/* Gives an approximation for the number of lines in the file */
 static unsigned lines_estim(FILE* file){
 	/* read the first line */
 	char str[2048];
@@ -48,6 +48,52 @@ static unsigned lines_estim(FILE* file){
 }
 
 
+// unsigned read_nodes_vertex(const char* filename, std::vector<Vertex*> &S)
+// {
+// MSH_ASSERT(filename!=NULL)
+
+// 	FILE* file = fopen(filename,"r");
+// 	if(file==NULL)
+// 		MSH_ERROR("Cannot open file %s",filename);
+
+// 	unsigned nlines = lines_estim(file);
+// 	if(nlines==0){
+// 		Data=NULL;
+// 		return 0;
+// 	}
+// 	unsigned length = 0;
+
+// 	// we allocate much more to be sure (realloc a lesser size is fast)
+// 	*Data = (double*) malloc(5*nlines*sizeof(double)); 
+	
+// 	unsigned line=0; /* Compteur de lignes dans le fichier */
+// 	while(!feof(file))
+// 	{
+// 		if(3*length>5*nlines)  should not happen if the first line is "normal" 
+// 			*Data = (double*) realloc(*Data, 5*length*sizeof(double));
+
+// 		int i;
+// 		for (i=0; i<3; i++){
+// 			/* Reads data from the stream and stores them in Data */
+// 			if(fscanf(file," %256lf ",*Data + length*3 +i)!=1){
+// 				if(i==0) /* the whole line is missing, we don't care */
+// 				{ 
+// 					break;
+// 				}
+// 				else{
+// 					MSH_ERROR("File issue: missing column (line%d, col%d)"
+// 					"(can be caused by an unwanted character in the file)",line,i);
+// 				}
+// 			}
+// 		}
+// 		if(i!=0)
+// 		length++;
+// 		line++;
+// 	}
+// 	fclose(file);
+// 	*Data = (double*) realloc(*Data, 3*length*sizeof(double));
+// 	return length;
+// }
 
 unsigned read_nodes_txt(const char* filename, double** Data)
 {
@@ -67,15 +113,20 @@ MSH_ASSERT(filename!=NULL)
 	// we allocate much more to be sure (realloc a lesser size is fast)
 	*Data = (double*) malloc(5*nlines*sizeof(double)); 
 	
-	unsigned line=0;
-	while(!feof(file)){
-		if(3*length>5*nlines) // should not happen if the first line is "normal"
+	unsigned line=0; /* Compteur de lignes dans le fichier */
+	while(!feof(file))
+	{
+		if(3*length>5*nlines) /* should not happen if the first line is "normal" */
 			*Data = (double*) realloc(*Data, 5*length*sizeof(double));
 
 		int i;
 		for (i=0; i<3; i++){
-			if(fscanf(file," %256lf ",*Data+length*3+i)!=1){
-				if(i==0){ // the whole line is missing, we don't care
+			/* Reads data from the stream and stores them in Data */
+//			printf("Value %u \n",length*3 +i);
+
+			if(fscanf(file," %256lf ",*Data + length*3 +i)!=1){
+				if(i==0) /* the whole line is missing, we don't care */
+				{ 
 					break;
 				}
 				else{
@@ -85,7 +136,7 @@ MSH_ASSERT(filename!=NULL)
 			}
 		}
 		if(i!=0)
-			length++;
+		length++;
 		line++;
 	}
 	fclose(file);

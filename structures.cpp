@@ -1,7 +1,7 @@
-#include "structure.h"
+#include "structures.h"
 #include <stdio.h>
-#include<stdlib.h>
-#include<time.h>
+#include <stdlib.h>
+#include <time.h>
 #include <vector> // for std::vector
 #include <map> // for std::map
 #include <cmath>
@@ -292,160 +292,162 @@ void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T,char *name)
 
 
 
-int main(int argc, char *argv[]) //AS : Some stuff in main? TO do again
-{
-  // to mesure time execution
-  clock_t start, finish; 
-	double duration;
-	start = clock();
-  //printf("test\n");
-  FILE* fichierin = fopen(argv[1],"r");
-  //printf("test 2 \n");
+// int main(int argc, char *argv[]) //AS : Some stuff in main? TO do again
+// {
+//   // to mesure time execution
+//   clock_t start, finish; 
+// 	double duration;
+// 	start = clock();
+//   //printf("test\n");
+//   FILE* fichierin = fopen(argv[1],"r");
+//   //printf("test 2 \n");
 
-  std::vector<Vertex*> S;
-  std::vector<Face*> T;
+//   std::vector<Vertex*> S;
+//   std::vector<Face*> T;
 
-  struct Vertex *v0;
+//   struct Vertex *v0;
 
-  double a,b,c;
-  double xmin = 0.0; double xmax = 0.0;
-  double ymin = 0.0; double ymax = 0.0;
-  int ligne = 0;
+//   double a,b,c;
+//   double xmin = 0.0; double xmax = 0.0;
+//   double ymin = 0.0; double ymax = 0.0;
+//   int ligne = 0;
 
-  // Initial Hilbert variables
- int d = 50;
- /* int bits[10];
- for(int i = 0;i<10;i++)
-   {
-     bits[i] = 0;
-     }*/
- double x0 = 0.0;  double y0 = 0.0;
- double xRed = 0.0;  double xBlue = 0.0;
- double yRed = 0.0;  double yBlue = 0.0;
+//   // Initial Hilbert variables
+//  int d = 50;
+//  /* int bits[10];
+//  for(int i = 0;i<10;i++)
+//    {
+//      bits[i] = 0;
+//      }*/
+//  double x0 = 0.0;  double y0 = 0.0;
+//  double xRed = 0.0;  double xBlue = 0.0;
+//  double yRed = 0.0;  double yBlue = 0.0;
 
 
  
- while(1)
-   {
-     if (feof(fichierin))
-       {
-	 break;
-       }
+//  while(1)
+//    {
+//      if (feof(fichierin))
+//        {
+// 	 break;
+//        }
      
-     fscanf(fichierin,"%lf %lf %lf \n",&a,&b,&c);
-     // a += 1.e-4*(double) rand() / RAND_MAX;
-     // b += 1.e-4*(double) rand() / RAND_MAX;
-     // printf("%g %g %g\n",a,b,c);
-     int *bits = new int[d];
-     /*   for(int i = 0;i<d;i++)
-       {
-	 bits[i] = 0;
-	 }*/
-     struct Vertex *v0 = new Vertex (ligne+1,a,b,0.0,bits);
-     S.push_back(v0);
+//      fscanf(fichierin,"%lf %lf %lf \n",&a,&b,&c);
+//      // a += 1.e-4*(double) rand() / RAND_MAX;
+//      // b += 1.e-4*(double) rand() / RAND_MAX;
+//      // printf("%g %g %g\n",a,b,c);
+//      int *bits = new int[d];
+//      /*   for(int i = 0;i<d;i++)
+//        {
+// 	 bits[i] = 0;
+// 	 }*/
+//      struct Vertex *v0 = new Vertex (ligne+1,a,b,0.0,bits);
+//      S.push_back(v0);
      
-     if (a>xmax)
-       {
-	 xmax = a;
-       }
-     if (a<xmin)
-       {
-	 xmin = a;
-       }
-     if (b>ymax)
-       {
-	 ymax = b;
-       }
-     if (b<ymin)
-       {
-	 ymin = b;
-       }     ligne++;
-   }
- fclose(fichierin);
+//      if (a>xmax)
+//        {
+// 	 xmax = a;
+//        }
+//      if (a<xmin)
+//        {
+// 	 xmin = a;
+//        }
+//      if (b>ymax)
+//        {
+// 	 ymax = b;
+//        }
+//      if (b<ymin)
+//        {
+// 	 ymin = b;
+//        }     ligne++;
+//    }
+//  fclose(fichierin);
 
  
 
  
- // Super triangle
- int *bits1 = new int[d];
- Vertex* ch1 = new Vertex(ligne + 1,xmin-0.1,ymin-0.1,0.0,bits1);
- int *bits2 = new int[d];
- Vertex* ch2 = new Vertex(ligne + 2,xmin-0.1,ymax+0.1,0.0,bits2);
- int *bits3 = new int[d];
- Vertex* ch3 = new Vertex(ligne + 3,xmax+0.1,ymax+0.1,0.0,bits3);
- int *bits4 = new int[d];
- Vertex* ch4 = new Vertex(ligne + 4,xmax+0.1,ymin-0.1,0.0,bits4);
- Face *super1 = new Face(ch1,ch4,ch2);
- Face *super2 = new Face(ch4,ch3,ch2);
- S.push_back(ch1);
- S.push_back(ch2);
- S.push_back(ch3);
- S.push_back(ch4);
+//  // Super triangle
+//  int *bits1 = new int[d];
+//  Vertex* ch1 = new Vertex(ligne + 1,xmin-0.1,ymin-0.1,0.0,bits1);
+//  int *bits2 = new int[d];
+//  Vertex* ch2 = new Vertex(ligne + 2,xmin-0.1,ymax+0.1,0.0,bits2);
+//  int *bits3 = new int[d];
+//  Vertex* ch3 = new Vertex(ligne + 3,xmax+0.1,ymax+0.1,0.0,bits3);
+//  int *bits4 = new int[d];
+//  Vertex* ch4 = new Vertex(ligne + 4,xmax+0.1,ymin-0.1,0.0,bits4);
+//  Face *super1 = new Face(ch1,ch4,ch2);
+//  Face *super2 = new Face(ch4,ch3,ch2);
+//  S.push_back(ch1);
+//  S.push_back(ch2);
+//  S.push_back(ch3);
+//  S.push_back(ch4);
  
- super1->F[1] = super2;
- super2->F[2] = super1;
+//  super1->F[1] = super2;
+//  super2->F[2] = super1;
  
- T.push_back(super1);
- T.push_back(super2);
+//  T.push_back(super1);
+//  T.push_back(super2);
 
 
- x0   = (ch1->x+ch4->x)/2.0;     y0    = (ch1->y+ch2->y)/2.0;
- xRed = (abs(ch1->x)+abs(ch4->x)) - x0;   xBlue = 0.0;
- yRed = 0.0;   yBlue = (abs(ch1->y)+abs(ch2->y)) - y0;
+//  x0   = (ch1->x+ch4->x)/2.0;     y0    = (ch1->y+ch2->y)/2.0;
+//  xRed = (abs(ch1->x)+abs(ch4->x)) - x0;   xBlue = 0.0;
+//  yRed = 0.0;   yBlue = (abs(ch1->y)+abs(ch2->y)) - y0;
 
-// to display the vector S
-/* for(int i = 0;i<S.size();i++)
-   {
-     printf("S %i : %i %i %i \n",S[i]->num,S[i]->bits[0],S[i]->bits[1],S[i]->bits[2]);
-     //     printf("%i %i %i %i %i \n",S[i]->bits[5],S[i]->bits[6],S[i]->bits[7],S[i]->bits[8],S[i]->bits[9]);
-     }
-*/
- // for loops to find Hilbert coordinate for every vertex
- for(int i = 0; i < S.size();i++)
-   {
+// // to display the vector S
+// /* for(int i = 0;i<S.size();i++)
+//    {
+//      printf("S %i : %i %i %i \n",S[i]->num,S[i]->bits[0],S[i]->bits[1],S[i]->bits[2]);
+//      //     printf("%i %i %i %i %i \n",S[i]->bits[5],S[i]->bits[6],S[i]->bits[7],S[i]->bits[8],S[i]->bits[9]);
+//      }
+// */
+//  // for loops to find Hilbert coordinate for every vertex
+//  for(int i = 0; i < S.size();i++)
+//    {
      
-     // printf("no hilbert \n");
-     //printf("S : %i %i \n ",S[i]->bits[0],S[i]->bits[1]);
-     HilbertCoord(S[i]->x,S[i]->y,x0,y0,xRed,yRed,xBlue,yBlue,d,S[i]->bits);
-     //printf("hilbert \n");
-     // printf("S %i : %i %i %i %i %i \n",i+1,S[i]->bits[0],S[i]->bits[1],S[i]->bits[2],S[i]->bits[3],S[i]->bits[4]);
-     // printf("bits %i = %i %i %i %i \n",i,bits[0],bits[1],bits[2],bits[3]);
-   }
+//      // printf("no hilbert \n");
+//      //printf("S : %i %i \n ",S[i]->bits[0],S[i]->bits[1]);
+//      HilbertCoord(S[i]->x,S[i]->y,x0,y0,xRed,yRed,xBlue,yBlue,d,S[i]->bits);
+//      //printf("hilbert \n");
+//      // printf("S %i : %i %i %i %i %i \n",i+1,S[i]->bits[0],S[i]->bits[1],S[i]->bits[2],S[i]->bits[3],S[i]->bits[4]);
+//      // printf("bits %i = %i %i %i %i \n",i,bits[0],bits[1],bits[2],bits[3]);
+//    }
 
- // to display the vector S
- // printf("HILBERT : \n");
- /*  for(int i = 0;i<S.size();i++)
-   {
-     printf("oz\n");
-     printf("S %i : %i %i %i \n",S[i]->num,S[i]->bits[0],S[i]->bits[1],S[i]->bits[2]);
-     //    printf("%i %i %i %i %i \n",S[i]->bits[5],S[i]->bits[6],S[i]->bits[7],S[i]->bits[8],S[i]->bits[9]);
-      }
- */
-  // sort of vertex by comparing its hilbert coordinate
- std::sort(S.begin()+4,S.end()-4,trie);
- // printf("SORTED HILBERT : \n");
+//  // to display the vector S
+//  // printf("HILBERT : \n");
+//  /*  for(int i = 0;i<S.size();i++)
+//    {
+//      printf("oz\n");
+//      printf("S %i : %i %i %i \n",S[i]->num,S[i]->bits[0],S[i]->bits[1],S[i]->bits[2]);
+//      //    printf("%i %i %i %i %i \n",S[i]->bits[5],S[i]->bits[6],S[i]->bits[7],S[i]->bits[8],S[i]->bits[9]);
+//       }
+//  */
+//   // sort of vertex by comparing its hilbert coordinate
+//  std::sort(S.begin()+4,S.end()-4,trie);
+//  // printf("SORTED HILBERT : \n");
 
-// to display the shorted vector S 
-/*for(int i = 0;i<S.size();i++)
-   {
-     //   printf("oz 2 \n");
-     printf("S : %lf %lf \n ",S[i]->x,S[i]->y);
-     printf("S %i: %i %i %i \n ",S[i]->num,S[i]->bits[0],S[i]->bits[1],S[i]->bits[2]);
-     //      printf("%i %i %i %i %i \n",S[i]->bits[5],S[i]->bits[6],S[i]->bits[7],S[i]->bits[8],S[i]->bits[9]);
-      }
-*/
-// printf("seg \n");
+// // to display the shorted vector S 
+// /*for(int i = 0;i<S.size();i++)
+//    {
+//      //   printf("oz 2 \n");
+//      printf("S : %lf %lf \n ",S[i]->x,S[i]->y);
+//      printf("S %i: %i %i %i \n ",S[i]->num,S[i]->bits[0],S[i]->bits[1],S[i]->bits[2]);
+//      //      printf("%i %i %i %i %i \n",S[i]->bits[5],S[i]->bits[6],S[i]->bits[7],S[i]->bits[8],S[i]->bits[9]);
+//       }
+// */
+// // printf("seg \n");
 
- try{
-   delaunayTrgl(S,T,argv[2]);
- }
- catch (int i){
-   printf("failed after %d points %d triangles\n",i,(int)T.size());
- }
+//  try{
+//    delaunayTrgl(S,T,argv[2]);
+//  }
+//  catch (int i){
+//    printf("failed after %d points %d triangles\n",i,(int)T.size());
+//  }
  
- // display time execution
- finish = clock(); 
-	duration = (double)(finish - start) / CLOCKS_PER_SEC; 
-	printf( "%f seconds\n", duration );
- return 0;
-}
+//  // display time execution
+//  finish = clock(); 
+// 	duration = (double)(finish - start) / CLOCKS_PER_SEC; 
+// 	printf( "%f seconds\n", duration );
+//  return 0;
+// }
+
+

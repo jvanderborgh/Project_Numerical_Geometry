@@ -1,7 +1,7 @@
-// #include "DT.h"
+// #include "structures.h"
 // #include <stdio.h>
-// #include<stdlib.h>
-// #include<time.h>
+// #include <stdlib.h>
+// #include <time.h>
 // #include <vector> // for std::vector
 // #include <map> // for std::map
 // #include <cmath>
@@ -436,10 +436,12 @@
 // */
 // // printf("seg \n");
 
-//  try{
+//  try
+//  {
 //    delaunayTrgl(S,T,argv[2]);
 //  }
-//  catch (int i){
+//  catch (int i)
+//  {
 //    printf("failed after %d points %d triangles\n",i,(int)T.size());
 //  }
  
