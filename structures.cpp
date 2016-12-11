@@ -42,7 +42,11 @@ void HilbertCoord(double x, double y,double x0, double y0, double xRed, double y
 {
   /* Pour l'instant on ne sait pas à quoi sert le tableau bits*/
   free(bits);
+<<<<<<< HEAD
   bits = new int[4];
+=======
+  bits = new int[3];
+>>>>>>> 5c4d4ea6e3834b04dff3e8fce9ffe28eee132780
   for(int i = 0; i<d; i++) /* Profondeur  */
     {
       double coordRed  = (x-x0) * xRed  + (y-y0) * yRed;

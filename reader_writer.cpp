@@ -147,6 +147,7 @@ MSH_ASSERT(filename!=NULL)
 
 void write_gmsh_hilbert(const char* filename, double* Data, unsigned dLength, unsigned* Edges, unsigned sLength)
 {
+	printf("0.1\n");
 MSH_ASSERT(filename!=NULL); // Ok compris
 MSH_ASSERT(Data!=NULL);
 MSH_ASSERT(Triangles!=NULL);
