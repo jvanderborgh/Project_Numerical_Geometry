@@ -37,39 +37,43 @@ void swap(double& a, double& b) // AS: not in the course
   b = temp;
 }
 
-// hilbert coordinate for a vertex AS: In the course
+/* Hilbert coordinate for a vertex AS: In the course */
 void HilbertCoord(double x, double y,double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, int d, int bits[])
 {
-  //free(bits);
-  //bits = new int[10];
-  for(int i = 0; i<d; i++)
+  /* Pour l'instant on ne sait pas à quoi sert le tableau bits*/
+  free(bits);
+  bits = new int[4];
+  for(int i = 0; i<d; i++) /* Profondeur  */
     {
-      double coordRed = (x-x0)* xRed + (y-y0) * yRed;
+      double coordRed  = (x-x0) * xRed  + (y-y0) * yRed;
       double coordBlue = (x-x0) * xBlue + (y-y0) * yBlue;
       xRed/=2; yRed/=2; xBlue/=2; yBlue/=2;
 
-      if (coordRed <= 0 && coordBlue <= 0) // quadrant 0
+      if (coordRed <= 0 && coordBlue <= 0)      /* Cadran 0 */
 	{
 	  x0 -= (xBlue+xRed); y0 -= (yBlue+yRed);
 	  swap(xRed,xBlue) ; swap(yRed,yBlue) ;
-	  bits[i] = 0;
+	  bits[i] = 0; 
 	}
-      else if (coordRed <= 0 && coordBlue >=0) // quadrant 1
+      else if (coordRed <= 0 && coordBlue >=0)  /* Cadran 1 */
 	{
 	  x0 += (xBlue-xRed); y0 += (yBlue+yRed);
 	  bits[i] = 1;
 	}
-      else if (coordRed >= 0 && coordBlue >= 0) // quadrant 2
+      else if (coordRed >= 0 && coordBlue >= 0) /* Cadran 2 */
 	{
 	  x0 += (xBlue+xRed); y0 += (yBlue+yRed);
-	  bits[i] = 2;
+	  bits[i] = 2; 
 	}
-      else if(coordRed >= 0 && coordBlue <=0) // quadrant 3
+      else if(coordRed >= 0 && coordBlue <=0)   /* Cadran 3 */
 	{
-	  x0 +=(-xBlue+xRed); y0 += (-yBlue+yRed);
+	  x0 +=(-xBlue+xRed); 
+	  y0 += (-yBlue+yRed);
 	  swap(xRed,xBlue); swap(yRed,yBlue);
-	  xBlue = -xBlue; yBlue = -yBlue;
-	  xRed = -xRed; yRed = -yRed;
+	  xBlue = -xBlue; 
+	  yBlue = -yBlue;
+	  xRed = -xRed; 
+	  yRed = -yRed;
 	  bits[i] = 3;
 	}
     }
