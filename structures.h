@@ -48,7 +48,7 @@ int orientationTest(Vertex *a, Vertex *b, Vertex *c); //Can be found in rubust p
 
 struct Face
 {
-  Face *F[3];
+  Face   *F[3];
   Vertex *V[3];
   /* Initialisation variable booleenne de nom "deleted" */
   bool deleted; 
@@ -71,28 +71,26 @@ struct Face
   {
     return Edge(V[k],V[(k+1)%3]) ;
   }
-  bool inCircle (Vertex *d) //Can be found in Robust Predicates
+  bool inCircle (Vertex *d) /* Can be found in Robust Predicates */
   {
-   // Matrix for incircle test
-   // a = V0, b = V1 and c = V2
+   /* Matrix for incircle test */
+   /* a = V0, b = V1 and c = V2 */
    double a11 = (V[0]->x) - (d->x);  double a12 = (V[0]->y) - (d->y); double a13 = a11*a11 + a12*a12;
    double a21 = (V[1]->x) - (d->x);  double a22 = (V[1]->y) - (d->y); double a23 = a21*a21 + a22*a22;
    double a31 = (V[2]->x) - (d->x);  double a32 = (V[2]->y) - (d->y); double a33 = a31*a31 + a32*a32;
    double det = a11*((a22*a33)-(a32*a23)) - a12*((a21*a33)-(a31*a23)) + a13*((a21*a32)-(a31*a22));
 
-    // Matrix for orientation test
+    /* Matrix for orientation test */
     double b11 = (V[0]->x)-(V[2]->x) ;
     double b12 = (V[0]->y)-(V[2]->y);
     double b21 = (V[1]->x)-(V[2]->x);
     double b22 = (V[1]->y)-(V[2]->y);
     double sign = (b11*b22)-(b21*b12);
    
-  // d lies inside or on the circle
   if(sign*det >= 0.0)
-    return true;
-  // d lies outside 
+    return true;    /* d lies inside or on the circle */
   else
-    return false;
+    return false;   /* d lies outside */
  }
  Vertex centroid () //Function not given
   {
@@ -103,19 +101,23 @@ struct Face
   }
 };
 
-
+/*******************************************/
 /********* Signatures of functions *********/
+/*******************************************/
 
-bool trie(Vertex* a, Vertex* b);
-void swap(double& a, double& b); // AS: not in the course
+bool trie(Vertex* v1, Vertex* v2);
+void swap(double& v1, double& v2);
+void printHilbert(std::vector<Vertex*> &S);
 
-
+/*******************************************/
 /********* Functions of the course *********/
+/*******************************************/
 
-void HilbertCoord(double x, double y,double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, int d, int bits[]);
-void computeAdjacencies(std::vector<Face*> &cavity);
-void delaunayCavity(Face *f, Vertex *v, std::vector<Face*> &cavity, std::vector<Edge> &bnd, std::vector<Face*> &otherSide);
+void  HilbertCoord(double x, double y,double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, int d, int bits[]);
+void  computeAdjacencies(std::vector<Face*> &cavity);
+void  delaunayCavity(Face *f, Vertex *v, std::vector<Face*> &cavity, std::vector<Edge> &bnd, std::vector<Face*> &otherSide);
 Face* lineSearch(Face *f, Vertex *v);
-void delaunayTrgl (std::vector<Vertex*> &S, std::vector<Face*> &T,char *name);
+void  delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T,char *name);
+
 #endif
 

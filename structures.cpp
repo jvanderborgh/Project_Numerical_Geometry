@@ -1,4 +1,5 @@
 #include "structures.h"
+#include "reader_writer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -10,43 +11,47 @@ using namespace std; // std::vector -> vector
 
 
 
-// compare function to class vertex 
-bool trie(Vertex* a, Vertex* b) // AS : Not int the course
+/* Compare function to class vertex */ 
+bool trie(Vertex* v1, Vertex* v2)
 {
   // printf("bits = %i \n",a->bits[0]);
-  for(int i = 0; i < sizeof(a->bits) ;i++)
-     {
-       if(a->bits[i] < b->bits[i]) // return true if a < b
-	{
-	  return true;
+	for(int d = 0; d < sizeof(v1->bits); d++)
+  	{
+  		if(v1->bits[d] < v2->bits[d])  // return true if a < b
+  		{	
+  			return true;
+  		}
+        if(v1->bits[d] > v2->bits[d]) // return false if a > b
+	  	{	
+	  		return false;	
+		}
+		// else
+		// {
+		// 	if(v1)
+		// 	{}
+		// 	else
+		// 		return false;
+		// }
 	}
-         if(a->bits[i] > b->bits[i]) // return false if a > b
-	{
-	  return false;
-	}
-	
-	}
-  return false; // if a == b
-  
+    return false; // if a == b
 }
-// swap
-void swap(double& a, double& b) // AS: not in the course
+
+/* Ici on modifie les pointeurs de v1 et v2 */
+/********  SWAP Function ********/
+void swap(double& v1, double& v2) 
 {
-  double temp = a;
-  a = b;
-  b = temp;
+	double temp = v1;
+  	v1 = v2;
+  	v2 = temp;
 }
 
 /* Hilbert coordinate for a vertex AS: In the course */
 void HilbertCoord(double x, double y,double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, int d, int bits[])
 {
   /* Pour l'instant on ne sait pas à quoi sert le tableau bits*/
-  free(bits);
-<<<<<<< HEAD
-  bits = new int[4];
-=======
-  bits = new int[3];
->>>>>>> 5c4d4ea6e3834b04dff3e8fce9ffe28eee132780
+  // free(bits);
+  // bits = new int[4];
+
   for(int i = 0; i<d; i++) /* Profondeur  */
     {
       double coordRed  = (x-x0) * xRed  + (y-y0) * yRed;
@@ -72,8 +77,9 @@ void HilbertCoord(double x, double y,double x0, double y0, double xRed, double y
       else if(coordRed >= 0 && coordBlue <=0)   /* Cadran 3 */
 	{
 	  x0 +=(-xBlue+xRed); 
-	  y0 += (-yBlue+yRed);
-	  swap(xRed,xBlue); swap(yRed,yBlue);
+	  y0 +=(-yBlue+yRed);
+	  swap(xRed,xBlue); 
+	  swap(yRed,yBlue);
 	  xBlue = -xBlue; 
 	  yBlue = -yBlue;
 	  xRed = -xRed; 
@@ -209,34 +215,8 @@ Face* lineSearch(Face *f, Vertex *v){ //AS: In the course without the commented 
 }
 
 
-void P ( std::vector<Vertex*> &S, std::vector<Face*> &T, char *name) //AS : reader_writer
-{
-  FILE* fichierout = fopen(name,"w");
-// ecriture dans le fichier
- fprintf(fichierout,"$MeshFormat \n");
- fprintf(fichierout,"2.2 0 8 \n");
- fprintf(fichierout,"$EndMeshFormat \n");
- fprintf(fichierout,"$Nodes\n");
- fprintf(fichierout,"%i\n",(int)S.size());
- 
- int node,node2,node3;
- 
- for(int i = 0; i<S.size() ;i++)
-   {
-     fprintf(fichierout,"%i %lf %lf %lf \n",S[i]->num,S[i]->x,S[i]->y,S[i]->z);
-   }
- fprintf(fichierout, "$EndNodes\n");
- fprintf(fichierout,"$Elements\n");
- fprintf(fichierout,"%i \n",(int)T.size());
- 
- for(int i = 0; i<T.size();i++)
-   {
-     fprintf(fichierout,"%i %i %i %i %i %i %i\n",i+1,2,1,99,T[i]->V[0]->num,T[i]->V[1]->num,T[i]->V[2]->num);     
-   }
- fprintf(fichierout,"$EndElements\n");
- 
- fclose(fichierout);
-}
+
+
 //AS : !!!! different
 void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T,char *name)
 {    
@@ -245,7 +225,7 @@ void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T,char *name)
 	  // Pour ecrire dans le fichier
 	  //char name[256];
 	  //sprintf(name,"pt%d.geo",0);
-	  P(S,T,name); //AS : not in the course
+	  write_gmsh_Delaunay(S,T,name); //AS : not in the course
 	  Face *f = lineSearch(T[0], S[iP]); //not in the course
 
 	  /*  if (!f) {
@@ -298,7 +278,21 @@ void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T,char *name)
 }
 
 
+/************************************************/
+/** PRINTING FUNCTIONS FOR DELAUNAY STRUCTURES **/
+/************************************************/
+// to display the vector S
 
+void printHilbert(std::vector<Vertex*> &S)
+{
+	printf("HILBERT : \n");
+    for(int i=0; i<S.size(); i++)
+  	{
+     	printf("S %i : %i %i %i \n",S[i]->num,S[i]->bits[0],S[i]->bits[1],S[i]->bits[2]);
+     	/* printf("S %i : %i %i %i %i %i \n",i+1,S[i]->bits[0],S[i]->bits[1],S[i]->bits[2],S[i]->bits[3],S[i]->bits[4]); */
+        /* printf("%i %i %i %i %i \n" ,S[i]->bits[5],S[i]->bits[6],S[i]->bits[7],S[i]->bits[8],S[i]->bits[9]); */
+    }
+}
 
 // int main(int argc, char *argv[]) //AS : Some stuff in main? TO do again
 // {

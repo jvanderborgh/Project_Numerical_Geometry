@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "reader_writer.h"
 
 /********************************************************
  *  SOME MACRO FOR ERROR MESSAGES
@@ -145,9 +146,42 @@ MSH_ASSERT(filename!=NULL)
 }
 
 
+void write_gmsh_Delaunay ( std::vector<Vertex*> &S, std::vector<Face*> &T, char *name) //AS : reader_writer
+{
+// MSH_ASSERT(filename!=NULL); // Ok compris
+// MSH_ASSERT(Data!=NULL);
+// MSH_ASSERT(Triangles!=NULL);
+
+  FILE* fichierout = fopen(name,"w");
+// ecriture dans le fichier
+ fprintf(fichierout,"$MeshFormat \n");
+ fprintf(fichierout,"2.2 0 8 \n");
+ fprintf(fichierout,"$EndMeshFormat \n");
+ fprintf(fichierout,"$Nodes\n");
+ fprintf(fichierout,"%i\n",(int)S.size());
+ 
+ int node,node2,node3;
+ 
+ for(int i = 0; i<S.size() ;i++)
+   {
+     fprintf(fichierout,"%i %lf %lf %lf \n",S[i]->num,S[i]->x,S[i]->y,S[i]->z);
+   }
+ fprintf(fichierout, "$EndNodes\n");
+ fprintf(fichierout,"$Elements\n");
+ fprintf(fichierout,"%i \n",(int)T.size());
+ 
+ for(int i = 0; i<T.size();i++)
+   {
+     fprintf(fichierout,"%i %i %i %i %i %i %i\n",i+1,2,1,99,T[i]->V[0]->num,T[i]->V[1]->num,T[i]->V[2]->num);     
+   }
+ fprintf(fichierout,"$EndElements\n");
+ 
+ fclose(fichierout);
+}
+
+
 void write_gmsh_hilbert(const char* filename, double* Data, unsigned dLength, unsigned* Edges, unsigned sLength)
 {
-	printf("0.1\n");
 MSH_ASSERT(filename!=NULL); // Ok compris
 MSH_ASSERT(Data!=NULL);
 MSH_ASSERT(Triangles!=NULL);
