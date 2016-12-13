@@ -26,7 +26,7 @@ int main(int argc, char const *argv[])
 	/* Initialisation des repères */
 
 	/* Initial Hilbert Variable for the deep of the structure */
-	int d = 4; 
+	int d = 50; 
 
   double  xmin(0.0),xmax(0.0),
           ymin(0.0),ymax(0.0);
@@ -98,6 +98,7 @@ int main(int argc, char const *argv[])
     //printHilbert(S);
  
   // sort of vertex by comparing its hilbert coordinate
+//  std::sort(S.begin()+4,S.end()-4,trie);
   std::sort(S.begin(),S.end(),trie);
 
   printHilbert(S);
