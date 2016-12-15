@@ -11,11 +11,13 @@
 
 int main(int argc, char const *argv[])
 {
-	double *Data;
+	double *Data, *Square;
  	
  	/** Filling Data structure (X,Y,Val) **/
  	unsigned n = read_nodes_txt("In/Exemple3.in", &Data); // n positif via unsigned
-  /** Printing the data **/
+  unsigned nSquare = read_nodes_txt("In/Exemple3.in", &Square); // n positif via unsigned
+
+    /** Printing the data **/
  	/* printf("X\tY\tValue\t(%u pts)\n", n); // \t = 4 espaces */
 
 
@@ -26,7 +28,7 @@ int main(int argc, char const *argv[])
 	/* Initialisation des repères */
 
 	/* Initial Hilbert Variable for the deep of the structure */
-	int d = 50; 
+	int d(8); 
 
   double  xmin(0.0),xmax(0.0),
           ymin(0.0),ymax(0.0);
@@ -48,16 +50,24 @@ int main(int argc, char const *argv[])
     if(Data[3*i+1]<ymin){ymin = Data[3*i+1];}
     ligne++;
   }
+  printf("xdist: %f ; ydist: %f\n",std::abs(xmax-xmin),std::abs(ymax-ymin));
+
+  printf("xmin: %f ; ymin: %f\n",xmin,ymin);
+  printf("xmax: %f ; ymax: %f\n",xmax,ymax);
+  square(xmin,xmax,ymin,ymax);
+  printf("xmin: %f ; ymin: %f\n",xmin,ymin);
+  printf("xmax: %f ; ymax: %f\n",xmax,ymax);
+  printf("xdist: %f ; ydist: %f\n",std::abs(xmax-xmin),std::abs(ymax-ymin));
 
   /* Create the two fisrt super triangles of the mesh */
  	int *bits1  = new int[d];
- 	Vertex* P1  = new Vertex(ligne + 1,xmin-0.1,ymin-0.1,0.0,bits1);
+ 	Vertex* P1  = new Vertex(ligne + 1,xmin-0.1,ymin-1.0,0.0,bits1);
  	int *bits2  = new int[d];
- 	Vertex* P2  = new Vertex(ligne + 2,xmin-0.1,ymax+0.1,0.0,bits2);
+ 	Vertex* P2  = new Vertex(ligne + 2,xmin-0.1,ymax+1.0,0.0,bits2);
  	int *bits3  = new int[d];
- 	Vertex* P3  = new Vertex(ligne + 3,xmax+0.1,ymax+0.1,0.0,bits3);
+ 	Vertex* P3  = new Vertex(ligne + 3,xmax+0.1,ymax+1.0,0.0,bits3);
  	int *bits4  = new int[d];
- 	Vertex* P4  = new Vertex(ligne + 4,xmax+0.1,ymin-0.1,0.0,bits4);
+ 	Vertex* P4  = new Vertex(ligne + 4,xmax+0.1,ymin-1.0,0.0,bits4);
  	
  	Face *super1 = new Face(P1,P4,P2);
  	Face *super2 = new Face(P4,P3,P2);
@@ -67,6 +77,53 @@ int main(int argc, char const *argv[])
  	S.push_back(P2);
  	S.push_back(P3);
  	S.push_back(P4);
+
+
+
+/***********************TEST SQUARE **********************************/
+
+    int s = 0;
+    for (int v = 0; v < S.size(); v++)
+    {
+      Data[s]   = S[v]->x;
+      Data[s+1] = S[v]->y;
+      Data[s+2] = S[v]->z;
+      printf("V%d: x=%f; y=%f\n",v+1,Data[s],Data[s+1]);
+      s+=3;
+    }
+
+ //   unsigned* Triangles = (unsigned*)malloc(6*n*sizeof(unsigned)); // n = nombre de points et 2n triangles donc
+    unsigned* Segments_Square = (unsigned*)malloc(6*n*sizeof(unsigned));
+
+    /* Réaliser une grosse boucle for pour tous les triangles */
+  Segments_Square[0] = 0;
+  Segments_Square[1] = 1;
+
+    for (int i = 2; i < (2*S.size()-1); i+=2)
+    {
+      Segments_Square[i]   = Segments_Square[i-1];
+      Segments_Square[i+1] = Segments_Square[i]+1;
+    }
+    for (int i = 0; i < 2*S.size(); ++i)
+    {
+      printf("%u\n", Segments_Square[i]);
+    }
+  write_gmsh_hilbert("Out/Square.out", Data, S.size(), Segments_Square, S.size()-1);
+
+
+/***********************TEST SQUARE **********************************/
+
+
+
+
+
+
+
+
+
+
+
+
 
  	super1->F[1] = super2;
  	super2->F[2] = super1;
@@ -78,6 +135,8 @@ int main(int argc, char const *argv[])
 
  	x0   = (P1->x + P4->x)/2.0;     
  	y0   = (P1->y + P2->y)/2.0;
+
+ 
 
  	xRed  = (std::abs(P1->x)+std::abs(P4->x)) - x0;
  	yRed  = 0.0;
@@ -95,13 +154,17 @@ int main(int argc, char const *argv[])
   /******************************************************************/
   for(int i = 0; i < S.size();i++)
     HilbertCoord(S[i]->x,S[i]->y,x0,y0,xRed,yRed,xBlue,yBlue,d,S[i]->bits);
-    //printHilbert(S);
+  printHilbert(S);
  
   // sort of vertex by comparing its hilbert coordinate
 //  std::sort(S.begin()+4,S.end()-4,trie);
+  S.pop_back();
+  S.pop_back();
+  S.pop_back();
+  S.pop_back();
   std::sort(S.begin(),S.end(),trie);
 
-  printHilbert(S);
+  //printHilbert(S);
 
   /****************************************************************/
   /******************** DELAUNAY TRIANGULATION ********************/
@@ -112,7 +175,7 @@ int main(int argc, char const *argv[])
 // 	write_gmsh_bin("Out/triangle.out", Data, n, Triangles, 2); // (quicker for large files)
 
     int i = 0;
-    for (int v = 0; v < n; v++)
+    for (int v = 0; v < S.size(); v++)
     {
     	Data[i]   = S[v]->x;
     	Data[i+1] = S[v]->y;
@@ -124,10 +187,10 @@ int main(int argc, char const *argv[])
     unsigned* Segments = (unsigned*)malloc(6*n*sizeof(unsigned));
 
     /* Réaliser une grosse boucle for pour tous les triangles */
-    Segments[0] = 0;
+  Segments[0] = 0;
 	Segments[1] = 1;
 
-    for (int i = 2; i < 2*n-1; i+=2)
+    for (int i = 2; i < 2*(S.size()-1); i+=2)
     {
      	Segments[i]   = Segments[i-1];
      	Segments[i+1] = Segments[i]+1;
@@ -136,13 +199,18 @@ int main(int argc, char const *argv[])
     // {
     //   printf("%u\n", Segments[i]);
     // }
- 	write_gmsh_hilbert("Out/hilbert.out", Data, n, Segments, n-1);
+
+  // BUG DECELE
+  write_gmsh_hilbert("Out/hilbert.out", Data, n, Segments, 2*S.size());
+  //write_gmsh_hilbert("Out/hilbert.out", Data, n, Segments, n);
+
 
  	printf("---------~~~~   THE END ~~~~~---------");
  	/** NEVER WRITE SOMETHING AFTER THESE LINES!!! **/
  	//free(Triangles);
  	free(Segments);
  	free(Data);
+  free(Square);
  	return 0;
 
  // printf("SORTED HILBERT : \n");

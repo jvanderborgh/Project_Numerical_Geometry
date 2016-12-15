@@ -10,6 +10,17 @@
 using namespace std; // std::vector -> vector
 
 
+void square(double &xmin, double &xmax, double &ymin, double &ymax)
+{
+	printf("CACA PROUT\n");
+	double xdist(std::abs(xmax-xmin));
+	double ydist(std::abs(ymax-ymin));
+	double a(xdist-ydist);
+	if(a > 0)
+		ymax = ymax + a;
+	else if(a < 0)
+		xmax = xmax - a;
+}
 
 /* Compare function to class vertex */ 
 bool trie(Vertex* v1, Vertex* v2)
@@ -38,7 +49,7 @@ bool trie(Vertex* v1, Vertex* v2)
 
 /* Ici on modifie les pointeurs de v1 et v2 */
 /********  SWAP Function ********/
-void swap(double& v1, double& v2) 
+void swap(double& v1, double& v2) /***/ 
 {
 	double temp = v1;
   	v1 = v2;

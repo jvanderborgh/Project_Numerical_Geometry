@@ -40,11 +40,14 @@ gmsh:
 hilbert:
 	open ./Out/hilbert.out
 
+square:
+	open ./Out/Square.out
+
 coucou:
 	echo coucou
 
 clean:
-	rm -rf *.o ./Out/hilbert.out
+	rm -rf *.o ./Out/hilbert.out ./Out/Square.out
 
 mrproper: clean
 	rm -rf $(EXEC)
