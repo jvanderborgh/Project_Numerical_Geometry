@@ -180,7 +180,7 @@ void write_gmsh_Delaunay ( std::vector<Vertex*> &S, std::vector<Face*> &T, char 
 }
 
 
-void write_gmsh_hilbert(const char* filename, double* Data, unsigned dLength, unsigned* Edges, unsigned sLength)
+void write_gmsh_hilbert(const char* filename, double* Data, unsigned dLength, unsigned* Segments, unsigned sLength)
 {
 MSH_ASSERT(filename!=NULL); // Ok compris
 MSH_ASSERT(Data!=NULL);
@@ -200,6 +200,52 @@ MSH_ASSERT(Triangles!=NULL);
 	unsigned i;
 	for (i=0; i<dLength; i++)
 		fprintf(file,"%u %.10E %.10E 0.0\n",i+1,Data[3*i],Data[3*i+1]);
+               //    i+1 Data[3*i] ... et z=0.0 (not 3D! :-P)
+	/* print the elements */
+	fprintf(file,"$EndNodes\n"
+                 "$Elements\n"
+                 "%u\n",sLength);
+	for (i=0; i<2*sLength; i+=2) // 2*sLength car on fait i+=2!! :-P
+		fprintf(file,"%u 1 0 %u %u\n",(i/2)+1,Segments[i]+1,
+			                              Segments[i+1]+1);
+	// fprintf(file,"1 1 0 1 2\n");
+	// fprintf(file,"2 1 0 2 3\n");
+	// fprintf(file,"3 1 0 3 4\n");
+	// fprintf(file,"4 1 0 4 5\n");
+	// fprintf(file,"5 1 0 5 6\n");
+
+
+	fputs("$EndElements\n",file);
+	fprintf(file,"$NodeData\n"
+		         "1\n\"Hilbert_Sorting\"\n"
+		         "1\n0.0\n3\n0\n1\n%u\n",dLength);
+
+	for (i=0; i<dLength; i++)
+		fprintf(file,"%u %.10E\n",i+1, Data[3*i+2]);
+	fputs("$EndNodeData",file);
+	fclose(file);
+}
+
+void write_gmsh_hilbertBis(const char* filename, double* Data, unsigned dLength, unsigned* Edges, unsigned sLength)
+{
+MSH_ASSERT(filename!=NULL); // Ok compris
+MSH_ASSERT(Data!=NULL);
+MSH_ASSERT(Triangles!=NULL);
+
+	FILE* file = fopen(filename,"w"); //"w" argument pour dire qu'on écrit/write un fichier
+	if(file==NULL)
+		MSH_ERROR("Cannot open file %s",filename);
+
+	/* format for gmsh: in section 9.2 MSH binary file format */
+	fprintf(file,"$MeshFormat\n"
+	             "2.2 0 %u\n"
+	             "$EndMeshFormat\n"
+	             "$Nodes\n"
+	             "%u\n",(unsigned) sizeof(double),dLength); //u = Unsigned decimal integer
+	/* print the nodes */
+	unsigned i;
+	for (i=0; i<dLength; i++)
+		fprintf(file,"%u %.10e %.10e 0.0\n",i+1,Data[3*i],Data[3*i+1]);
                //    i+1 Data[3*i] ... et z=0.0 (not 3D! :-P)
 	/* print the elements */
 	fprintf(file,"$EndNodes\n"

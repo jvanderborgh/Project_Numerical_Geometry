@@ -107,7 +107,7 @@ struct Face
 void square(double &xmin, double &xmax, double &ymin, double &ymax);
 bool trie(Vertex* v1, Vertex* v2);
 void swap(double& v1, double& v2);
-void printHilbert(std::vector<Vertex*> &S);
+void printHilbert(std::vector<Vertex*> &S, int d);
 
 /*******************************************/
 /********* Functions of the course *********/
@@ -117,7 +117,7 @@ void  HilbertCoord(double x, double y,double x0, double y0, double xRed, double 
 void  computeAdjacencies(std::vector<Face*> &cavity);
 void  delaunayCavity(Face *f, Vertex *v, std::vector<Face*> &cavity, std::vector<Edge> &bnd, std::vector<Face*> &otherSide);
 Face* lineSearch(Face *f, Vertex *v);
-void  delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T,char *name);
+void  delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T);//,char *name);
 
 #endif
 

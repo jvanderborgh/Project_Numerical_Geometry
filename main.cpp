@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
 	/* Initialisation des repères */
 
 	/* Initial Hilbert Variable for the deep of the structure */
-	int d(8); 
+	int d(6); // Au dessus de d=8, les résultats ne changent plus :-)
 
   double  xmin(0.0),xmax(0.0),
           ymin(0.0),ymax(0.0);
@@ -82,33 +82,33 @@ int main(int argc, char const *argv[])
 
 /***********************TEST SQUARE **********************************/
 
-    int s = 0;
-    for (int v = 0; v < S.size(); v++)
-    {
-      Data[s]   = S[v]->x;
-      Data[s+1] = S[v]->y;
-      Data[s+2] = S[v]->z;
-      printf("V%d: x=%f; y=%f\n",v+1,Data[s],Data[s+1]);
-      s+=3;
-    }
+  //   int s = 0;
+  //   for (int v = 0; v < S.size(); v++)
+  //   {
+  //     Data[s]   = S[v]->x;
+  //     Data[s+1] = S[v]->y;
+  //     Data[s+2] = S[v]->z;
+  //     printf("V%d: x=%f; y=%f\n",v+1,Data[s],Data[s+1]);
+  //     s+=3;
+  //   }
 
- //   unsigned* Triangles = (unsigned*)malloc(6*n*sizeof(unsigned)); // n = nombre de points et 2n triangles donc
-    unsigned* Segments_Square = (unsigned*)malloc(6*n*sizeof(unsigned));
+  //   unsigned* Triangles = (unsigned*)malloc(6*n*sizeof(unsigned)); // n = nombre de points et 2n triangles donc
+  //   unsigned* Segments_Square = (unsigned*)malloc(6*n*sizeof(unsigned));
 
-    /* Réaliser une grosse boucle for pour tous les triangles */
-  Segments_Square[0] = 0;
-  Segments_Square[1] = 1;
+  //    Réaliser une grosse boucle for pour tous les triangles 
+  // Segments_Square[0] = 0;
+  // Segments_Square[1] = 1;
 
-    for (int i = 2; i < (2*S.size()-1); i+=2)
-    {
-      Segments_Square[i]   = Segments_Square[i-1];
-      Segments_Square[i+1] = Segments_Square[i]+1;
-    }
-    for (int i = 0; i < 2*S.size(); ++i)
-    {
-      printf("%u\n", Segments_Square[i]);
-    }
-  write_gmsh_hilbert("Out/Square.out", Data, S.size(), Segments_Square, S.size()-1);
+  //   for (int i = 2; i < (2*S.size()-1); i+=2)
+  //   {
+  //     Segments_Square[i]   = Segments_Square[i-1];
+  //     Segments_Square[i+1] = Segments_Square[i]+1;
+  //   }
+  //   for (int i = 0; i < 2*S.size(); ++i)
+  //   {
+  //     printf("%u\n", Segments_Square[i]);
+  //   }
+  // write_gmsh_hilbert("Out/Square.out", Data, S.size(), Segments_Square, S.size()-1);
 
 
 /***********************TEST SQUARE **********************************/
@@ -147,14 +147,13 @@ int main(int argc, char const *argv[])
  
 
   /* To display the vector S */
-  //printHilbert(S);
+  //printHilbert(S,d);
   
   /******************************************************************/
   /******** Filling Hilbert bits coordinates for each vertex ********/
   /******************************************************************/
   for(int i = 0; i < S.size();i++)
     HilbertCoord(S[i]->x,S[i]->y,x0,y0,xRed,yRed,xBlue,yBlue,d,S[i]->bits);
-  printHilbert(S);
  
   // sort of vertex by comparing its hilbert coordinate
 //  std::sort(S.begin()+4,S.end()-4,trie);
@@ -164,7 +163,7 @@ int main(int argc, char const *argv[])
   S.pop_back();
   std::sort(S.begin(),S.end(),trie);
 
-  //printHilbert(S);
+  printHilbert(S,d);
 
   /****************************************************************/
   /******************** DELAUNAY TRIANGULATION ********************/
@@ -183,31 +182,42 @@ int main(int argc, char const *argv[])
     	i+=3;
     }
 
- //   unsigned* Triangles = (unsigned*)malloc(6*n*sizeof(unsigned)); // n = nombre de points et 2n triangles donc
+    unsigned* Triangles = (unsigned*)malloc(6*n*sizeof(unsigned)); // n = nombre de points et 2n triangles donc
     unsigned* Segments = (unsigned*)malloc(6*n*sizeof(unsigned));
 
     /* Réaliser une grosse boucle for pour tous les triangles */
   Segments[0] = 0;
 	Segments[1] = 1;
 
-    for (int i = 2; i < 2*(S.size()-1); i+=2)
+    for (int i = 2; i < 2*S.size(); i+=2)
     {
      	Segments[i]   = Segments[i-1];
      	Segments[i+1] = Segments[i]+1;
     }
-    // for (int i = 0; i < 2*n; ++i)
-    // {
-    //   printf("%u\n", Segments[i]);
-    // }
-
+    int INDEX = 0;
+    for (int i = 0; i < 2*n; ++i)
+    {
+      printf("%u\n", Segments[i]);
+      INDEX++;
+    }
+  printf("%d\n",INDEX );
   // BUG DECELE
-  write_gmsh_hilbert("Out/hilbert.out", Data, n, Segments, 2*S.size());
+  delaunayTrgl(S,T);//,argv[2]);
+
+
+//  write_gmsh_hilbert("Out/hilbert.out", Data, n, Segments, 2*S.size());
+  printf("%d\n", S.size());
+  write_gmsh_hilbert("Out/hilbert.out", Data, n, Segments, S.size()-1);
+  /* QUESTION => n peut-être = n+4
+              => 2*S.size => S.Size()
+  */
   //write_gmsh_hilbert("Out/hilbert.out", Data, n, Segments, n);
 
+  write_gmsh_txt("Out/triangle.out", Data, n, Triangles, T.size());
 
  	printf("---------~~~~   THE END ~~~~~---------");
  	/** NEVER WRITE SOMETHING AFTER THESE LINES!!! **/
- 	//free(Triangles);
+ 	free(Triangles);
  	free(Segments);
  	free(Data);
   free(Square);

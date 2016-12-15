@@ -229,14 +229,14 @@ Face* lineSearch(Face *f, Vertex *v){ //AS: In the course without the commented 
 
 
 //AS : !!!! different
-void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T,char *name)
+void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T)//,char *name)
 {    
     for(int iP=4; iP<S.size()-3; iP++) //AS: in the course : int iP=0 ; iP < S . size ( ) ; iP++
 	{
 	  // Pour ecrire dans le fichier
-	  //char name[256];
-	  //sprintf(name,"pt%d.geo",0);
-	  write_gmsh_Delaunay(S,T,name); //AS : not in the course
+	  // char name[256];
+	  // sprintf(name,"pt%d.geo",0);
+	  // write_gmsh_Delaunay(S,T,name); //AS : not in the course
 	  Face *f = lineSearch(T[0], S[iP]); //not in the course
 
 	  /*  if (!f) {
@@ -294,14 +294,15 @@ void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T,char *name)
 /************************************************/
 // to display the vector S
 
-void printHilbert(std::vector<Vertex*> &S)
+void printHilbert(std::vector<Vertex*> &S, int d)
 {
 	printf("HILBERT : \n");
     for(int i=0; i<S.size(); i++)
   	{
-     	printf("S %i : %i %i %i \n",S[i]->num,S[i]->bits[0],S[i]->bits[1],S[i]->bits[2]);
-     	/* printf("S %i : %i %i %i %i %i \n",i+1,S[i]->bits[0],S[i]->bits[1],S[i]->bits[2],S[i]->bits[3],S[i]->bits[4]); */
-        /* printf("%i %i %i %i %i \n" ,S[i]->bits[5],S[i]->bits[6],S[i]->bits[7],S[i]->bits[8],S[i]->bits[9]); */
+  		printf("S %i : ",S[i]->num);
+  		for (int p = 0; p < d; ++p)
+  				printf("%i ",S[i]->bits[p]);
+     	printf("\n");
     }
 }
 
