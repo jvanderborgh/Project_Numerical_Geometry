@@ -104,7 +104,9 @@ struct Face
 /*******************************************/
 /********* Signatures of functions *********/
 /*******************************************/
+
 void square(double &xmin, double &xmax, double &ymin, double &ymax);
+//bool sortHilbert (Vertex *v1,Vertex *v2);
 bool trie(Vertex* v1, Vertex* v2);
 void swap(double& v1, double& v2);
 void printHilbert(std::vector<Vertex*> &S, int d);

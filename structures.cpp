@@ -12,7 +12,7 @@ using namespace std; // std::vector -> vector
 
 void square(double &xmin, double &xmax, double &ymin, double &ymax)
 {
-	printf("CACA PROUT\n");
+//	printf("CACA PROUT\n");
 	double xdist(std::abs(xmax-xmin));
 	double ydist(std::abs(ymax-ymin));
 	double a(xdist-ydist);
@@ -22,6 +22,8 @@ void square(double &xmin, double &xmax, double &ymin, double &ymax)
 		xmax = xmax - a;
 }
 
+
+
 /* Compare function to class vertex */ 
 bool trie(Vertex* v1, Vertex* v2)
 {
@@ -29,22 +31,11 @@ bool trie(Vertex* v1, Vertex* v2)
 	for(int d = 0; d < sizeof(v1->bits); d++)
   	{
   		if(v1->bits[d] < v2->bits[d])  // return true if a < b
-  		{	
   			return true;
-  		}
         if(v1->bits[d] > v2->bits[d]) // return false if a > b
-	  	{	
 	  		return false;	
-		}
-		// else
-		// {
-		// 	if(v1)
-		// 	{}
-		// 	else
-		// 		return false;
-		// }
 	}
-    return false; // if a == b
+    return false;
 }
 
 /* Ici on modifie les pointeurs de v1 et v2 */
@@ -59,30 +50,30 @@ void swap(double& v1, double& v2) /***/
 /* Hilbert coordinate for a vertex AS: In the course */
 void HilbertCoord(double x, double y,double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, int d, int bits[])
 {
-  /* Pour l'instant on ne sait pas à quoi sert le tableau bits*/
-  // free(bits);
-  // bits = new int[4];
-
   for(int i = 0; i<d; i++) /* Profondeur  */
-    {
+  {
       double coordRed  = (x-x0) * xRed  + (y-y0) * yRed;
       double coordBlue = (x-x0) * xBlue + (y-y0) * yBlue;
       xRed/=2; yRed/=2; xBlue/=2; yBlue/=2;
 
       if (coordRed <= 0 && coordBlue <= 0)      /* Cadran 0 */
 	{
-	  x0 -= (xBlue+xRed); y0 -= (yBlue+yRed);
-	  swap(xRed,xBlue) ; swap(yRed,yBlue) ;
+	  x0 -= (xBlue+xRed); 
+	  y0 -= (yBlue+yRed);
+	  swap(xRed,xBlue) ; 
+	  swap(yRed,yBlue) ;
 	  bits[i] = 0; 
 	}
       else if (coordRed <= 0 && coordBlue >=0)  /* Cadran 1 */
 	{
-	  x0 += (xBlue-xRed); y0 += (yBlue+yRed);
+	  x0 += (xBlue-xRed); 
+	  y0 += (yBlue+yRed);
 	  bits[i] = 1;
 	}
       else if (coordRed >= 0 && coordBlue >= 0) /* Cadran 2 */
 	{
-	  x0 += (xBlue+xRed); y0 += (yBlue+yRed);
+	  x0 += (xBlue+xRed); 
+	  y0 += (yBlue+yRed);
 	  bits[i] = 2; 
 	}
       else if(coordRed >= 0 && coordBlue <=0)   /* Cadran 3 */
@@ -97,7 +88,7 @@ void HilbertCoord(double x, double y,double x0, double y0, double xRed, double y
 	  yRed = -yRed;
 	  bits[i] = 3;
 	}
-    }
+  }
 }
 
 

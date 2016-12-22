@@ -207,7 +207,7 @@ MSH_ASSERT(Triangles!=NULL);
                  "%u\n",sLength);
 	for (i=0; i<2*sLength; i+=2) // 2*sLength car on fait i+=2!! :-P
 		fprintf(file,"%u 1 0 %u %u\n",(i/2)+1,Segments[i]+1,
-			                              Segments[i+1]+1);
+			                              	  Segments[i+1]+1);
 	// fprintf(file,"1 1 0 1 2\n");
 	// fprintf(file,"2 1 0 2 3\n");
 	// fprintf(file,"3 1 0 3 4\n");
