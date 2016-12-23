@@ -35,10 +35,10 @@ run: all
 	$(EXEC)
 
 gmsh: 
-	open ./Out/triangle.out
+	open ./Out/Triangle.out
 
 hilbert:
-	open ./Out/hilbert.out
+	open ./Out/Hilbert.out
 
 square:
 	open ./Out/Square.out
@@ -47,7 +47,7 @@ coucou:
 	echo coucou
 
 clean:
-	rm -rf *.o ./Out/hilbert.out ./Out/Square.out
+	rm -rf *.o ./Out/Hilbert.out ./Out/Triangle.out ./Out/Square.out
 
 mrproper: clean
 	rm -rf $(EXEC)

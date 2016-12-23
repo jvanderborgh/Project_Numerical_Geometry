@@ -21,7 +21,8 @@ void HilbertCoord(double x, double y,double x0, double y0, double xRed, double y
   {
       double coordRed  = (x-x0) * xRed  + (y-y0) * yRed;
       double coordBlue = (x-x0) * xBlue + (y-y0) * yBlue;
-      xRed/=2; yRed/=2; xBlue/=2; yBlue/=2;
+      xRed /=2; yRed /=2; 
+      xBlue/=2; yBlue/=2;
 
       if (coordRed <= 0 && coordBlue <= 0)      /* Cadran 0 */
 	{
@@ -79,27 +80,26 @@ bool comp(Vertex* v1, Vertex* v2)
 /********  Super triangles********/
 void SuperTriangle (vector<Vertex*> &Vertices, vector<Face*> &Triangles,double xmax,double xmin,double ymax,double ymin)
 {
-  // Super triangle
+	unsigned n = Vertices.size();
+  	/* Super triangle */
+  	Vertex* P1 = new Vertex(xmin-0.5,ymin-0.5,0.5);    /* P2 **** P3 */
+  	Vertex* P2 = new Vertex(xmin-0.5,ymax+0.5,0.5);	 /*    *       */
+  	Vertex* P3 = new Vertex(xmax+0.5,ymax+0.5,0.5);    /*       *    */
+  	Vertex* P4 = new Vertex(xmax+0.5,ymin-0.5,0.5);    /* P1 **** P4 */
+  	/* Order calling of the points is of no importance */
+  	Face *super1 = new Face(P1,P2,P4);
+  	Face *super2 = new Face(P4,P2,P3);
+  	/* We add the point in the same orientation of the Hilbert */
+  	Vertices.push_back(P1);
+  	Vertices.push_back(P2);
+  	Vertices.push_back(P3);
+  	Vertices.push_back(P4);
 
-  Vertex* ch1 = new Vertex(xmin-0.5,ymin-0.5,0.0);
+	super1->F[1] = super2;
+  	super2->F[2] = super1;
 
-  Vertex* ch2 = new Vertex(xmin-0.5 ,ymax+0.5,0.0);
-
-  Vertex* ch3 = new Vertex(xmax+0.5,ymax+0.5,0.0);
-
-  Vertex* ch4 = new Vertex(xmax+0.5,ymin-0.5,0.0);
-  Face *super1 = new Face(ch1,ch4,ch2);
-  Face *super2 = new Face(ch4,ch3,ch2);
-  Vertices.push_back(ch1);
-  Vertices.push_back(ch2);
-  Vertices.push_back(ch3);
-  Vertices.push_back(ch4);
-
-  super1->F[1] = super2;
-  super2->F[2] = super1;
-
-  Triangles.push_back(super1);
-  Triangles.push_back(super2);
+  	Triangles.push_back(super1);
+  	Triangles.push_back(super2);
 }
 
 /************************************************/
@@ -273,17 +273,30 @@ void computeAdjacencies (std::vector<Face*> &cavity)
 /************************************************/
 // to display the vector S
 
-void printHilbert(std::vector<Vertex*> &S, int d)
+void printVertices(std::vector<Vertex*> &Vertices)
 {
-	printf("HILBERT : \n");
-    for(int i=0; i<S.size(); i++)
+	unsigned n = Vertices.size();
+	printf("HILBERT:\n");
+	printf("X\tY\tValue\tBits\t(%u pts)\t (%u bits)\n",n,nbits);
+
+	for (int i=0; i<n; i++)
   	{
-  		printf("S %i : ",i);
-  		for (int p = 0; p < d; ++p)
-  				printf("%i ",S[i]->bits[p]);
-     	printf("\n");
-    }
+        printf("%d : x = %f y = %f val = %f \n",i+1,Vertices[i]->x,Vertices[i]->y,Vertices[i]->val);
+//      printf("%d : bits = [ %d %d %d ]    \n",i+1,Vertices[i]->bits[0], Vertices[i]->bits[1], Vertices[i]->bits[2]);
+  	}
 }
+// void printTriangles(std::vector<Face*> &Triangles)
+// {
+// 	unsigned n = Triangles.size();
+// 	printf("HILBERT:\n");
+// 	printf("X\tY\tValue\tBits\t(%u pts)\t (%u bits)\n",n,nbits);
+
+// 	for (int i=0; i<n; i++)
+//   	{
+//         printf("%d : x = %f y = %f val = %f \n",i+1,Triangles[i]->x,Triangles[i]->y,Triangles[i]->val);
+// //      printf("%d : bits = [ %d %d %d ]    \n",i+1,Vertices[i]->bits[0], Vertices[i]->bits[1], Vertices[i]->bits[2]);
+//   	}
+// }
 
 // int main(int argc, char *argv[]) //AS : Some stuff in main? TO do again
 // {

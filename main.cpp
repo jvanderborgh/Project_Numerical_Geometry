@@ -341,26 +341,29 @@
 int main(int argc, char const *argv[])
 {
   vector <Vertex*> Vertices ;
-  vector <Face*> Triangles;
+  vector <Face*>   Triangles;
+//  vector <Vertex*> SuperVertices;
 
   // Data*  Datas;
   double xmax(0),ymax(0),xmin(0),ymin(0);
   unsigned n = read_nodes_txt("In/Exemple3.in",Vertices, xmin, xmax, ymin, ymax);
 
-
+  /****** Begin HILBERT *******/
   for(int i=0; i<n; i++)
-    HilbertCoord( Vertices[i]->x, Vertices[i]->y, 0, 0, xmax+0.5 ,0, 0, ymax+0.5, nbits,Vertices[i]->bits);
+    HilbertCoord(Vertices[i]->x,Vertices[i]->y,0,0,xmax+0.5,0,0,ymax+0.5, nbits,Vertices[i]->bits);
     std::sort(Vertices.begin(),Vertices.end(),comp);
   for(int i=0; i<n; ++i)
     Vertices[i]->num = i;
+  /******* End HILBERT ********/
 
-  printf("X\tY\tValue\tBits\t(%u pts)\t (%u bits)\n", n,nbits);
-//   for (int i=0; i<n; i++)
-//   {
-//          printf("Point %d : bits = %d %d %d \n",i+1,data[i]->bits[0], data[i]->bits[1], data[i]->bits[2]);
-//          printf("Point %d : x = %f y = %f val = %f \n",i+1,data[i]->x,data[i]->y,data[i]->val);
-//   }
-//   */
+
+  SuperTriangle(Vertices,Triangles,xmax,xmin,ymax,ymin);
+//  SuperTriangle(SuperVertices,Triangles,xmax,xmin,ymax,ymin);
+  // Faire accéder à num pour SuperVertices
+
+
+
+ printVertices(Vertices);
 //  printf("CACAPROUT0\n");
 //  SuperTriangle(Vertices,Triangles,xmax,xmin,ymax,ymin);
 //  write_gmsh_Delaunay("Out/Triangle.out",Vertices, Triangles, n);
@@ -368,15 +371,23 @@ int main(int argc, char const *argv[])
  // delaunayTrgl(Vertices,Triangles);
  // printf("CACAPROUT2\n");
 
-//  write_gmsh_Delaunay("Out/Triangle.out",Vertices, Triangles, n);
+  //write_gmsh_Delaunay("Out/Triangle.out",SuperVertices, Triangles, n);
 
 
-     //printf("Point 9 : x = %f y = %f val = %f \n",data[8].x,data[8].y,data[8].val);
+
+
+  write_gmsh_Hilbert("Out/Hilbert.out",Vertices, n+4); /* +4 pour les super triangles!!! */
+
+  printf("~~~~----------------------~~~~   THE END ~~~~~----------------------~~~~");
+  return 0;
+}
+
+
+
+//printf("Point 9 : x = %f y = %f val = %f \n",data[8].x,data[8].y,data[8].val);
 
 //   // Triangles[3*i],[3*i+1],[3*i+2] will contain ith triangle
 // //  unsigned* Triangles = malloc(6*n*sizeof(unsigned));
-
-
 //   /* These are just 2 dummy triangles,
 //    * you should normally find them with your triangulation
 //    */
@@ -394,8 +405,3 @@ int main(int argc, char const *argv[])
 //   //write_gmsh_bin("Out/triangle.out", Data, n, Triangles, 2); // (quicker for large files)
 
 
-  write_gmsh_Hilbert("Out/Hilbert.out",Vertices, n);
-
-  printf("~~~~----------------------~~~~   THE END ~~~~~----------------------~~~~");
-  return 0;
-}

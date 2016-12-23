@@ -28,26 +28,6 @@
 #define MSH_ASSERT(...)
 #endif
 
- /** UNUSED FUNCTION **/
-// /* Gives an approximation for the number of lines in the file */
-// static unsigned lines_estim(FILE* file){
-// 	/* read the first line */
-// 	char str[2048];
-// 	if(fgets(str,2048,file)==NULL || str[0]=='\0'){
-// 		MSH_WARN("Empty file");
-// 		return 0;
-// 	}
-
-// 	/* count the number of charachter at the beginning of the file*/
-// 	int c;
-// 	for (c=0; str[c+1]!='\0'; c++);
-
-// 	fseek(file,0L,SEEK_END);
-// 	unsigned lines_approx = ftell(file)/c;
-// 	fseek(file,0L,SEEK_SET);
-// 	return lines_approx;
-// }
-
 unsigned read_nodes_txt(const char* filename, std::vector <Vertex*> &Data, double &xmin, double &xmax, double &ymin, double &ymax)
 {
 MSH_ASSERT(filename!=NULL)
@@ -60,19 +40,20 @@ MSH_ASSERT(filename!=NULL)
 	double xin, yin, valin;
 	while(!feof(file))
 	{
+		line++;
 		fscanf(file,"%lf %lf %lf",&xin,&yin,&valin);
+		Vertex* vertex = new Vertex(xin,yin,valin);
+    	Data.push_back(vertex);
+    	
     	xmax = max(xmax,xin);
     	ymax = max(ymax,yin);
     	xmin = min(xmin,xin);
     	ymin = min(ymin,yin);
-
-   		Vertex* vertex = new Vertex(xin,yin,valin);
-    	Data.push_back(vertex);
 	}
 	fclose(file);
+	Data.pop_back(); /* For an unknown reason, last point is added twice */
 
 	unsigned n = Data.size();
-	//Datas      = new Data(xmin,xmax,ymin,ymax,n);
 	return n;
 }
 
@@ -124,7 +105,7 @@ void write_gmsh_Delaunay(const char* filename, std::vector <Vertex*> &Vertices, 
             	"2.2 0 %u\n"
               	"$EndMeshFormat\n"
               	"$Nodes\n"
-              	"%u\n",(unsigned) sizeof(double),n+1);
+              	"%u\n",(unsigned) sizeof(double),n);
 
   	for(int i=0; i<n; i++)
     	fprintf(out,"%u %.10E %.10E 0.0\n",Vertices[i]->num+1,Vertices[i]->x,Vertices[i]->y);
@@ -134,10 +115,10 @@ void write_gmsh_Delaunay(const char* filename, std::vector <Vertex*> &Vertices, 
   	/********** End print the nodes *******/
   	//printf("CACAPROUT0E\n");
   	
-  	unsigned nT = Triangles.size()-1;
+  	unsigned nT = Triangles.size();
   	/********** print the elements ********/
   	fprintf(out,"$Elements\n"
-              "%u\n",nT+1);       //
+              "%u\n",nT);       //
   	for(int i =0; i < nT; i++)
   	{
   		printf("CACAPROUT0N\n");
@@ -152,7 +133,7 @@ void write_gmsh_Delaunay(const char* filename, std::vector <Vertex*> &Vertices, 
   	/******** print the nodes Vertices ******/
   	fprintf(out,"$NodeData\n"
             	"1\n\"Delaunay_triangulation\"\n"
-            	"1\n0.0\n3\n0\n1\n%u\n",n+1); 
+            	"1\n0.0\n3\n0\n1\n%u\n",n); 
   	for (int i=0; i<n; i++)
     	fprintf(out,"%u %.10E\n",i+1,Vertices[i]->val);
   	fputs("$EndNodeData",out);
@@ -256,3 +237,22 @@ MSH_ASSERT(Triangles!=NULL);
 
 	fclose(file);
 }
+/** UNUSED FUNCTION **/
+// /* Gives an approximation for the number of lines in the file */
+// static unsigned lines_estim(FILE* file){
+// 	/* read the first line */
+// 	char str[2048];
+// 	if(fgets(str,2048,file)==NULL || str[0]=='\0'){
+// 		MSH_WARN("Empty file");
+// 		return 0;
+// 	}
+
+// 	/* count the number of charachter at the beginning of the file*/
+// 	int c;
+// 	for (c=0; str[c+1]!='\0'; c++);
+
+// 	fseek(file,0L,SEEK_END);
+// 	unsigned lines_approx = ftell(file)/c;
+// 	fseek(file,0L,SEEK_SET);
+// 	return lines_approx;
+// }

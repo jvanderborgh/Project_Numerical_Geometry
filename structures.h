@@ -20,7 +20,7 @@ struct Vertex
   /* Contructeur */
   Vertex(double X, double Y, double VAL) : x(X), y(Y), val(VAL)
   {/* No methods associated to struct Vertices */}
-  Vertex (double X, double Y, double VAL,int Num) : x(X), y(Y), val(VAL)
+  Vertex (double X, double Y, double VAL, unsigned Num) : x(X), y(Y), val(VAL), num(Num)
   {/* Il n'y as pas de méthodes définies sur cet objet :-) */}
   
 };
@@ -50,8 +50,8 @@ int orientationTest(Vertex *a, Vertex *b, Vertex *c); //Can be found in rubust p
 
 struct Face
 {
-  Face   *F[3];
-  Vertex *V[3];
+  Face   *F[3]; /* Tableau de 3 triangles */
+  Vertex *V[3]; /* Tableau de 3 points    */
   /* Initialisation variable booleenne de nom "deleted" */
   bool deleted;
   /* Constructeur Face */
@@ -79,7 +79,7 @@ struct Face
   return circ>=0.0;
   }/* Can be found in Robust Predicates */
 
- Vertex centroid () //Function not given
+  Vertex centroid () //Function not given
   {
   double cx = ((V[0]->x)   + (V[1]->x)   + (V[2]->x));
   double cy = ((V[0]->y)   + (V[1]->y)   + (V[2]->y));
@@ -97,7 +97,8 @@ void square(double &xmin, double &xmax, double &ymin, double &ymax);
 bool comp(Vertex* v1, Vertex* v2);
 void swap(double& v1, double& v2);
 void SuperTriangle(vector<Vertex*> &Vertices, vector<Face*> &Triangles,double xmax,double xmin,double ymax,double ymin);
-void printHilbert(std::vector<Vertex*> &S, int d);
+void printVertices (std::vector<Vertex*> &Vertices);
+// void printTriangles(std::vector<Face*>   &Triangles);
 
 /*******************************************/
 /********* Functions of the course *********/
