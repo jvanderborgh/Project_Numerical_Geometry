@@ -1,53 +1,20 @@
-#include "structures.h"
-#include "reader_writer.h"
-#include <stdio.h>
+//#include "structures.h"
+#include "reader_writer.h" //#include "structures.h"
+//#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <vector> // for std::vector
-#include <map> // for std::map
+#include <map>    // for std::map
 #include <cmath>
 #include <iostream>
 using namespace std; // std::vector -> vector
+using namespace robustPredicates;
 
+/************************************************/
+/** Hilbert + functions for Hilbert **/
+/************************************************/
 
-void square(double &xmin, double &xmax, double &ymin, double &ymax)
-{
-//	printf("CACA PROUT\n");
-	double xdist(std::abs(xmax-xmin));
-	double ydist(std::abs(ymax-ymin));
-	double a(xdist-ydist);
-	if(a > 0)
-		ymax = ymax + a;
-	else if(a < 0)
-		xmax = xmax - a;
-}
-
-
-
-/* Compare function to class vertex */ 
-bool trie(Vertex* v1, Vertex* v2)
-{
-  // printf("bits = %i \n",a->bits[0]);
-	for(int d = 0; d < sizeof(v1->bits); d++)
-  	{
-  		if(v1->bits[d] < v2->bits[d])  // return true if a < b
-  			return true;
-        if(v1->bits[d] > v2->bits[d]) // return false if a > b
-	  		return false;	
-	}
-    return false;
-}
-
-/* Ici on modifie les pointeurs de v1 et v2 */
-/********  SWAP Function ********/
-void swap(double& v1, double& v2) /***/ 
-{
-	double temp = v1;
-  	v1 = v2;
-  	v2 = temp;
-}
-
-/* Hilbert coordinate for a vertex AS: In the course */
+/********  Hilbert ********/
 void HilbertCoord(double x, double y,double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, int d, int bits[])
 {
   for(int i = 0; i<d; i++) /* Profondeur  */
@@ -58,92 +25,184 @@ void HilbertCoord(double x, double y,double x0, double y0, double xRed, double y
 
       if (coordRed <= 0 && coordBlue <= 0)      /* Cadran 0 */
 	{
-	  x0 -= (xBlue+xRed); 
+	  x0 -= (xBlue+xRed);
 	  y0 -= (yBlue+yRed);
-	  swap(xRed,xBlue) ; 
+	  swap(xRed,xBlue) ;
 	  swap(yRed,yBlue) ;
-	  bits[i] = 0; 
+	  bits[i] = 0;
 	}
       else if (coordRed <= 0 && coordBlue >=0)  /* Cadran 1 */
 	{
-	  x0 += (xBlue-xRed); 
-	  y0 += (yBlue+yRed);
+	  x0 += (xBlue - xRed);
+	  y0 += (yBlue - yRed);
 	  bits[i] = 1;
 	}
       else if (coordRed >= 0 && coordBlue >= 0) /* Cadran 2 */
 	{
-	  x0 += (xBlue+xRed); 
+	  x0 += (xBlue+xRed);
 	  y0 += (yBlue+yRed);
-	  bits[i] = 2; 
+	  bits[i] = 2;
 	}
       else if(coordRed >= 0 && coordBlue <=0)   /* Cadran 3 */
 	{
-	  x0 +=(-xBlue+xRed); 
+	  x0 +=(-xBlue+xRed);
 	  y0 +=(-yBlue+yRed);
-	  swap(xRed,xBlue); 
+	  swap(xRed,xBlue);
 	  swap(yRed,yBlue);
-	  xBlue = -xBlue; 
+	  xBlue = -xBlue;
 	  yBlue = -yBlue;
-	  xRed = -xRed; 
+	  xRed = -xRed;
 	  yRed = -yRed;
 	  bits[i] = 3;
 	}
   }
 }
-
-
-int orientationTest(Vertex *a,Vertex *b, Vertex *c) //AS:give in robustPredicate
-{	
-	// formula in syllabus p.25
-  // non-robust
-    double a11 = (a->x)-(c->x) ;
-    double a12 = (a->y)-(c->y);
-    double a21 = (b->x)-(c->x);
-    double a22 = (b->y)-(c->y);
-    double sign = (a11*a22)-(a21*a12);
-
-	if (sign > 0.0) 
-	{
-	  // printf("1 \n");
-	 return 1;
+/********  SWAP Function ********/
+void swap(double& v1, double& v2) /***/
+{
+	double temp = v1;
+  	v1 = v2;
+  	v2 = temp;
+}
+/********  Comparaison function********/
+bool comp(Vertex* v1, Vertex* v2)
+{
+	for(int d = 0; d < nbits; d++)     // nbits connu car on inclut structures.h
+  	{
+  		if(v1->bits[d] < v2->bits[d])  // return true if a < b
+  			return true;
+        if(v1->bits[d] > v2->bits[d])  // return false if a > b
+	  		return false;
 	}
-	else if (sign < 0.0)
-	{
-	  //printf("-1 \n");
-	 return -1;
-	}
-		else
-	{
-	  //printf("0 \n");
-	 return 0;
-	 }
+    return false;
+}
+/********  Super triangles********/
+void SuperTriangle (vector<Vertex*> &Vertices, vector<Face*> &Triangles,double xmax,double xmin,double ymax,double ymin)
+{
+  // Super triangle
+
+  Vertex* ch1 = new Vertex(xmin-0.5,ymin-0.5,0.0);
+
+  Vertex* ch2 = new Vertex(xmin-0.5 ,ymax+0.5,0.0);
+
+  Vertex* ch3 = new Vertex(xmax+0.5,ymax+0.5,0.0);
+
+  Vertex* ch4 = new Vertex(xmax+0.5,ymin-0.5,0.0);
+  Face *super1 = new Face(ch1,ch4,ch2);
+  Face *super2 = new Face(ch4,ch3,ch2);
+  Vertices.push_back(ch1);
+  Vertices.push_back(ch2);
+  Vertices.push_back(ch3);
+  Vertices.push_back(ch4);
+
+  super1->F[1] = super2;
+  super2->F[2] = super1;
+
+  Triangles.push_back(super1);
+  Triangles.push_back(super2);
 }
 
-void computeAdjacencies (std::vector<Face*> &cavity) //AS: in the course
+/************************************************/
+/** Triangulation + functions for Triangulation **/
+/************************************************/
+void delaunayTrgl(vector<Vertex*> &Vertices, vector<Face*> &Triangles)//,char *name)
 {
-    std::map<Edge, std::pair<int , Face* > >edgeToFace;
+    for(int iP=4; iP<Vertices.size()-3; iP++) //AS: in the course : int iP=0 ; iP < S . size ( ) ; iP++
+	{
+	  // Pour ecrire dans le fichier
+	  // char name[256];
+	  // sprintf(name,"pt%d.geo",0);
+	  // write_gmsh_Delaunay(S,T,name); //AS : not in the course
+	  Face *f = lineSearch(Triangles[0], Vertices[iP]); //not in the course
 
-    for(int iFace=0 ; iFace<cavity.size() ; iFace++)
-    {
-        for (int iEdge=0; iEdge < 3 ; iEdge ++)
-        {
-            Edge edge = cavity[iFace]->getEdge(iEdge);
+	  /*  if (!f) {
+	    continue;
+	    }*/
 
-	    std::map < Edge, std::pair < int, Face* > >::iterator it = edgeToFace.find(edge);
 
-	    if(it == edgeToFace.end())
-            {// edge has not yet been touched , so create an entry
-                edgeToFace.insert(std::make_pair (edge,std::make_pair(iEdge, cavity[iFace])));
-            }
-            else
-            { // Connect the two neighboring triangles
-                cavity[iFace]->F[iEdge]  = it->second.second;
-                it->second.second->F[it->second.first] = cavity[iFace];
-                // Erase edge from the map
-                edgeToFace.erase(it);
-            }
-        }
+	  vector<Face*> cavity   ;
+	  vector<Edge> bnd       ;
+	  vector<Face*> otherSide;
+
+	  delaunayCavity(f, Vertices[iP], cavity, bnd, otherSide);
+	  //  printf("throw iP, bnd  = %i and cavity = %i ans other = %i \n",bnd.size(),cavity.size(),otherSide.size());
+	  if(bnd.size() != cavity.size() + 2) throw iP; //AS : without IPP
+	  // printf("throw iP 2 \n");
+	  for (int i=0; i<cavity.size(); i++)
+	    {
+	      // reuse memory slots of invalid elements
+	      cavity[i]->deleted = false;
+	      cavity[i]->F[0] = cavity[i]->F[1] = cavity[i]->F[2] = NULL;
+	      cavity[i]->V[0] = bnd[i].vmin; // As: In course = bnd[ i ] .V[ 0 ] ;
+	      cavity[i]->V[1] = bnd[i].vmax; // AS : In course =bnd[ i ] .V[ 1 ] ;
+	      cavity[i]->V[2] = Vertices[iP];
+	    }
+
+	  //
+	    for (int i=0; i<otherSide.size(); i++) //AS : Not in the course
+	      {
+		otherSide[i]->deleted = false;
+	      }
+
+	  unsigned int cSize = cavity.size();
+
+	  for(int i=cSize; i<cSize+2; i++)
+	    {
+	      Face *newf = new Face(bnd[i].vmin,bnd[i].vmax,Vertices[iP]);
+	      Triangles.push_back(newf);
+	      cavity.push_back(newf);
+	    }
+
+	  for(int i=0; i<otherSide.size(); i++)
+	    {
+	      if(otherSide[i])
+		{
+		  cavity.push_back(otherSide[i]);
+		}
+	    }
+	  computeAdjacencies(cavity);
+	}
+}
+Face* lineSearch(Face *f, Vertex *v)
+{
+  // printf("Sommet (%lf,%lf,%lf)\n",v[0].x,v[0].y,v[0].z);
+
+  while(1) 
+  {
+    // printf("Oz \n");
+      if(f==NULL){
+	//	printf("return 1 \n");
+	return NULL; // we should NEVER return here
+      }
+
+      if(f->inCircle(v)){
+	//	printf("incircle\n");
+	return f;
+      }
+      Vertex c = f->centroid();
+
+      for(int iNeigh=0; iNeigh<3; iNeigh++) {
+	Edge e = f->getEdge(iNeigh);
+	//	printf("ori \n");
+	if( orientationTest (&c, v, e.vmin) *
+	    orientationTest (&c, v, e.vmax) <0
+	    &&
+	    orientationTest (e.vmin, e.vmax, &c) *
+	    orientationTest (e.vmin, e.vmax,  v) <0)
+	  {
+	    //printf("if \n");
+	    f = f->F[iNeigh];
+	    break;
+	  }
+	//	printf("break\n");
+      }
+      // printf("NEVER \n");
+      // return NULL; // we should NEVER return here
     }
+}
+int orientationTest(Vertex *a,Vertex *b, Vertex *c)
+{
+	return robustPredicates::orient2d ((double*) a, (double*) b, (double*) c);
 }
 
 void delaunayCavity(Face *f, Vertex *v, std::vector<Face*> &cavity, std::vector<Edge> &bnd, std::vector<Face*> &otherSide) //AS: In the course without the lines commented
@@ -172,111 +231,40 @@ void delaunayCavity(Face *f, Vertex *v, std::vector<Face*> &cavity, std::vector<
 
 	    if(!f->F[iNeigh]->deleted)
 		{
-                	otherSide.push_back(f->F[iNeigh]);  
-                	f->F[iNeigh]->deleted = true;       
+                	otherSide.push_back(f->F[iNeigh]);
+                	f->F[iNeigh]->deleted = true;
             	}
         }
         else delaunayCavity(f->F[iNeigh], v, cavity, bnd, otherSide);
     }
 }
 
-Face* lineSearch(Face *f, Vertex *v){ //AS: In the course without the commented line
-  // printf("Sommet (%lf,%lf,%lf)\n",v[0].x,v[0].y,v[0].z);
 
-  while(1) {
-    // printf("Oz \n");
-      if(f==NULL){
-	//	printf("return 1 \n");
-	return NULL; // we should NEVER return here
-      }
-      
-      if(f->inCircle(v)){
-	//	printf("incircle\n");
-	return f;    
-      }
-      Vertex c = f->centroid();  
-      
-      for(int iNeigh=0; iNeigh<3; iNeigh++) {	
-	Edge e = f->getEdge(iNeigh);
-	//	printf("ori \n");
-	if( orientationTest (&c, v, e.vmin) *
-	    orientationTest (&c, v, e.vmax) <0
-	    &&
-	    orientationTest (e.vmin, e.vmax, &c) *
-	    orientationTest (e.vmin, e.vmax,  v) <0)
-	  {
-	    //printf("if \n");
-	    f = f->F[iNeigh];   		
-	    break;              
-	  }
-	//	printf("break\n");
-      }
-      // printf("NEVER \n");
-      // return NULL; // we should NEVER return here
+void computeAdjacencies (std::vector<Face*> &cavity)
+{
+    std::map<Edge, std::pair<int , Face* > >edgeToFace;
+
+    for(int iFace=0 ; iFace<cavity.size() ; iFace++)
+    {
+        for (int iEdge=0; iEdge < 3 ; iEdge ++)
+        {
+            Edge edge = cavity[iFace]->getEdge(iEdge);
+
+	    std::map < Edge, std::pair < int, Face* > >::iterator it = edgeToFace.find(edge);
+
+	    if(it == edgeToFace.end())
+            {// edge has not yet been touched , so create an entry
+                edgeToFace.insert(std::make_pair (edge,std::make_pair(iEdge, cavity[iFace])));
+            }
+            else
+            { // Connect the two neighboring triangles
+                cavity[iFace]->F[iEdge]  = it->second.second;
+                it->second.second->F[it->second.first] = cavity[iFace];
+                // Erase edge from the map
+                edgeToFace.erase(it);
+            }
+        }
     }
-}
-
-
-
-
-//AS : !!!! different
-void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T)//,char *name)
-{    
-    for(int iP=4; iP<S.size()-3; iP++) //AS: in the course : int iP=0 ; iP < S . size ( ) ; iP++
-	{
-	  // Pour ecrire dans le fichier
-	  // char name[256];
-	  // sprintf(name,"pt%d.geo",0);
-	  // write_gmsh_Delaunay(S,T,name); //AS : not in the course
-	  Face *f = lineSearch(T[0], S[iP]); //not in the course
-
-	  /*  if (!f) {
-	    continue;
-	    }*/
-	   
-	
-	  std::vector<Face*> cavity   ; 
-	  std::vector<Edge> bnd       ; 
-	  std::vector<Face*> otherSide; 
-
-	  delaunayCavity(f, S[iP], cavity, bnd, otherSide);
-	  //  printf("throw iP, bnd  = %i and cavity = %i ans other = %i \n",bnd.size(),cavity.size(),otherSide.size());
-	  if(bnd.size() != cavity.size() + 2) throw iP; //AS : without IPP
-	  // printf("throw iP 2 \n");
-	  for (int i=0; i<cavity.size(); i++)
-	    {
-	      // reuse memory slots of invalid elements
-	      cavity[i]->deleted = false;
-	      cavity[i]->F[0] = cavity[i]->F[1] = cavity[i]->F[2] = NULL;
-	      cavity[i]->V[0] = bnd[i].vmin; // As: In course = bnd[ i ] .V[ 0 ] ;
-	      cavity[i]->V[1] = bnd[i].vmax; // AS : In course =bnd[ i ] .V[ 1 ] ;
-	      cavity[i]->V[2] = S[iP];
-	    }
-
-	  //
-	    for (int i=0; i<otherSide.size(); i++) //AS : Not in the course
-	      {
-		otherSide[i]->deleted = false; 
-	      }
-	 
-	  unsigned int cSize = cavity.size();
-
-	  for(int i=cSize; i<cSize+2; i++)
-	    {
-	      Face *newf = new Face(bnd[i].vmin,bnd[i].vmax,S[iP]);
-	      T.push_back(newf);
-	      cavity.push_back(newf);
-	    }
-
-	  for(int i=0; i<otherSide.size(); i++)
-	    {
-	      if(otherSide[i])
-		{
-		  cavity.push_back(otherSide[i]);
-		}
-	    }
-	  computeAdjacencies(cavity);
-	}
 }
 
 
@@ -290,7 +278,7 @@ void printHilbert(std::vector<Vertex*> &S, int d)
 	printf("HILBERT : \n");
     for(int i=0; i<S.size(); i++)
   	{
-  		printf("S %i : ",S[i]->num);
+  		printf("S %i : ",i);
   		for (int p = 0; p < d; ++p)
   				printf("%i ",S[i]->bits[p]);
      	printf("\n");

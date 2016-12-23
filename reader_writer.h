@@ -10,7 +10,7 @@
  */
 
 // Je commente
-unsigned read_nodes_txt(const char* filename, double** Data);
+unsigned read_nodes_txt(const char* filename, std::vector <Vertex*> &Data, double &xmin, double &xmax, double &ymin, double &ymax);
 
 
 /* Write triangulation to file (either in txt or binary form)
@@ -24,10 +24,10 @@ unsigned read_nodes_txt(const char* filename, double** Data);
  * @in sLength:   the number of segments in Hilbert sort
  */
 
-void write_gmsh_Delaunay ( std::vector<Vertex*> &S, std::vector<Face*> &T, char *name);
+// void write_gmsh_Delaunay ( std::vector<Vertex*> &S, std::vector<Face*> &T, char *name);
 /* write_gmsh_Delaunay still need to be finished :-) */
-void write_gmsh_hilbert(const char* filename, double* Data, unsigned dLength, unsigned* Segments, unsigned sLength);
-void write_gmsh_hilbertBis(const char* filename, double* Data, unsigned dLength, unsigned* Edges, unsigned sLength);
+void write_gmsh_Hilbert(const char* filename, std::vector <Vertex*> &Vertices, unsigned n);
+void write_gmsh_Delaunay(const char* filename, std::vector <Vertex*> &Vertices, std::vector <Face*> &Triangles, unsigned n);
 
 void write_gmsh_txt(const char* filename, double* Data, unsigned dLength, unsigned* Triangles, unsigned tLength);
 void write_gmsh_bin(const char* filename, double* Data, unsigned dLength, unsigned* Triangles, unsigned tLength);
