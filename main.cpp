@@ -342,7 +342,8 @@ int main(int argc, char const *argv[])
 {
   vector <Vertex*> Vertices ;
   vector <Face*>   Triangles;
-//  vector <Vertex*> SuperVertices;
+  //vector <Vertex*> SuperVertices;
+  //vector <Face*>   SuperTriangles;
 
   // Data*  Datas;
   double xmax(0),ymax(0),xmin(0),ymin(0);
@@ -356,27 +357,23 @@ int main(int argc, char const *argv[])
     Vertices[i]->num = i;
   /******* End HILBERT ********/
 
-
+  printVertices(Vertices);
+/******* Initialisation with two super triangles **********/
   SuperTriangle(Vertices,Triangles,xmax,xmin,ymax,ymin);
-//  SuperTriangle(SuperVertices,Triangles,xmax,xmin,ymax,ymin);
-  // Faire accéder à num pour SuperVertices
+  //printVertices(Vertices);
+  printf("Enter delaunayTrgl...\n");
+  
+  try{delaunayTrgl(Vertices,Triangles);}
+  catch(int i){printf("Failed after %d points %d triangles\n",i,(int)Triangles.size());}
 
+  printf("Get out of delaunayTrgl... ! SUCCESSFULL! :-D\n");
 
-
- printVertices(Vertices);
-//  printf("CACAPROUT0\n");
-//  SuperTriangle(Vertices,Triangles,xmax,xmin,ymax,ymin);
-//  write_gmsh_Delaunay("Out/Triangle.out",Vertices, Triangles, n);
-//  printf("CACAPROUT1\n");
- // delaunayTrgl(Vertices,Triangles);
- // printf("CACAPROUT2\n");
-
-  //write_gmsh_Delaunay("Out/Triangle.out",SuperVertices, Triangles, n);
+  write_gmsh_Delaunay("Out/Triangle.out",Vertices,Triangles);
 
 
 
 
-  write_gmsh_Hilbert("Out/Hilbert.out",Vertices, n+4); /* +4 pour les super triangles!!! */
+  write_gmsh_Hilbert("Out/Hilbert.out",Vertices, n); /* +4 pour les super triangles!!! */
 
   printf("~~~~----------------------~~~~   THE END ~~~~~----------------------~~~~");
   return 0;

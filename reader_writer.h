@@ -26,8 +26,8 @@ unsigned read_nodes_txt(const char* filename, std::vector <Vertex*> &Data, doubl
 
 // void write_gmsh_Delaunay ( std::vector<Vertex*> &S, std::vector<Face*> &T, char *name);
 /* write_gmsh_Delaunay still need to be finished :-) */
-void write_gmsh_Hilbert (const char* filename, std::vector <Vertex*> &Vertices, unsigned n);
-void write_gmsh_Delaunay(const char* filename, std::vector <Vertex*> &Vertices, std::vector <Face*> &Triangles, unsigned n);
+void write_gmsh_Hilbert (const char* filename, vector <Vertex*> &Vertices, unsigned n);
+void write_gmsh_Delaunay(const char* filename, vector <Vertex*> &Vertices, vector <Face*> &Triangles);
 
 void write_gmsh_txt(const char* filename, double* Data, unsigned dLength, unsigned* Triangles, unsigned tLength);
 void write_gmsh_bin(const char* filename, double* Data, unsigned dLength, unsigned* Triangles, unsigned tLength);

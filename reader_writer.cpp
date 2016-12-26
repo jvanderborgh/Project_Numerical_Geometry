@@ -57,7 +57,7 @@ MSH_ASSERT(filename!=NULL)
 	return n;
 }
 
-void write_gmsh_Hilbert(const char* filename, std::vector <Vertex*> &Vertices, unsigned n)
+void write_gmsh_Hilbert(const char* filename, vector <Vertex*> &Vertices, unsigned n)
 {
 	MSH_ASSERT(filename!=NULL); // Ok compris
   	FILE* out = fopen(filename,"w");  //"w" argument pour dire qu'on écrit/write un fichier
@@ -93,14 +93,17 @@ void write_gmsh_Hilbert(const char* filename, std::vector <Vertex*> &Vertices, u
   	fclose(out);
 }
 
-void write_gmsh_Delaunay(const char* filename, std::vector <Vertex*> &Vertices, std::vector <Face*> &Triangles, unsigned n)
+void write_gmsh_Delaunay(const char* filename, vector <Vertex*> &Vertices, vector <Face*> &Triangles)
 {
 	MSH_ASSERT(filename!=NULL); // Ok compris
   	FILE* out = fopen(filename,"w");  //"w" argument pour dire qu'on écrit/write un fichier
   	if(out==NULL)
 		MSH_ERROR("Cannot open file %s",filename);
 	/* Format for gmsh: in section 9.2 MSH binary file format */
- // 	printf("CACAPROUT0M\n");
+  	/********** Print the nodes *******/
+	unsigned n  = Vertices.size();
+	unsigned nT = Triangles.size();
+
   	fprintf(out,"$MeshFormat\n"  
             	"2.2 0 %u\n"
               	"$EndMeshFormat\n"
@@ -108,27 +111,23 @@ void write_gmsh_Delaunay(const char* filename, std::vector <Vertex*> &Vertices, 
               	"%u\n",(unsigned) sizeof(double),n);
 
   	for(int i=0; i<n; i++)
-    	fprintf(out,"%u %.10E %.10E 0.0\n",Vertices[i]->num+1,Vertices[i]->x,Vertices[i]->y);
-   //   	printf("CACAPROUT0M\n");
+    	fprintf(out,"%u %.10E %.10E 0.0\n",Vertices[i]->num,Vertices[i]->x,Vertices[i]->y);
 
   	fprintf(out,"$EndNodes\n");
   	/********** End print the nodes *******/
-  	//printf("CACAPROUT0E\n");
   	
-  	unsigned nT = Triangles.size();
-  	/********** print the elements ********/
+  	/********** Print the elements ********/
   	fprintf(out,"$Elements\n"
-              "%u\n",nT);       //
+    	        "%u\n",nT);       //
   	for(int i =0; i < nT; i++)
   	{
-  		printf("CACAPROUT0N\n");
-    	fprintf(out,"%u 2 0 %u %u %u\n",i+1,Triangles[i]->V[0]->num + 1,
-    										Triangles[i]->V[1]->num + 1,
-    										Triangles[i]->V[2]->num + 1);
+    	fprintf(out,"%u 2 0 %u %u %u\n",i+1,Triangles[i]->V[0]->num,
+    										Triangles[i]->V[1]->num,
+    										Triangles[i]->V[2]->num);
     }
   	fputs("$EndElements\n",out);
   	/****** End print the elements *******/
-  	printf("CACAPROUT0N\n");
+  	//printf("CACAPROUT0N\n");
 
   	/******** print the nodes Vertices ******/
   	fprintf(out,"$NodeData\n"
@@ -138,7 +137,7 @@ void write_gmsh_Delaunay(const char* filename, std::vector <Vertex*> &Vertices, 
     	fprintf(out,"%u %.10E\n",i+1,Vertices[i]->val);
   	fputs("$EndNodeData",out);
   	fclose(out);
-  	printf("CACAPROUT0F\n");
+  	//printf("CACAPROUT0F\n");
 }
 
 void write_gmsh_txt(const char* filename, double* Data, unsigned dLength, unsigned* Triangles, unsigned tLength)

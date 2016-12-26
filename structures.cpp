@@ -15,7 +15,7 @@ using namespace robustPredicates;
 /************************************************/
 
 /********  Hilbert ********/
-void HilbertCoord(double x, double y,double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, int d, int bits[])
+void HilbertCoord(double x, double y,double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, int d, int bits[]) /* OK COMPRIS*/
 {
   for(int i = 0; i<d; i++) /* Profondeur  */
   {
@@ -82,10 +82,10 @@ void SuperTriangle (vector<Vertex*> &Vertices, vector<Face*> &Triangles,double x
 {
 	unsigned n = Vertices.size();
   	/* Super triangle */
-  	Vertex* P1 = new Vertex(xmin-0.5,ymin-0.5,0.5);    /* P2 **** P3 */
-  	Vertex* P2 = new Vertex(xmin-0.5,ymax+0.5,0.5);	 /*    *       */
-  	Vertex* P3 = new Vertex(xmax+0.5,ymax+0.5,0.5);    /*       *    */
-  	Vertex* P4 = new Vertex(xmax+0.5,ymin-0.5,0.5);    /* P1 **** P4 */
+  	Vertex* P1 = new Vertex(xmin-0.5,ymin-0.5,0.6,n+1);    /* P2 **** P3 */
+  	Vertex* P2 = new Vertex(xmin-0.5,ymax+0.5,0.6,n+2);	 /*    *       */
+  	Vertex* P3 = new Vertex(xmax+0.5,ymax+0.5,0.6,n+3);    /*       *    */
+  	Vertex* P4 = new Vertex(xmax+0.5,ymin-0.5,0.6,n+4);    /* P1 **** P4 */
   	/* Order calling of the points is of no importance */
   	Face *super1 = new Face(P1,P2,P4);
   	Face *super2 = new Face(P4,P2,P3);
@@ -105,165 +105,164 @@ void SuperTriangle (vector<Vertex*> &Vertices, vector<Face*> &Triangles,double x
 /************************************************/
 /** Triangulation + functions for Triangulation **/
 /************************************************/
-void delaunayTrgl(vector<Vertex*> &Vertices, vector<Face*> &Triangles)//,char *name)
+void delaunayTrgl(vector<Vertex*> &Vertices, vector<Face*> &Triangles)
 {
-    for(int iP=4; iP<Vertices.size()-3; iP++) //AS: in the course : int iP=0 ; iP < S . size ( ) ; iP++
+	/* Ajoute progresseivement tous les points dans le maillage */
+    for(int iP = 0; iP < 4; iP++) //AS: in the course : int iP=0 ; iP < S . size ( ) ; iP++
 	{
-	  // Pour ecrire dans le fichier
-	  // char name[256];
-	  // sprintf(name,"pt%d.geo",0);
-	  // write_gmsh_Delaunay(S,T,name); //AS : not in the course
-	  Face *f = lineSearch(Triangles[0], Vertices[iP]); //not in the course
+	  /* Cherche un mauvais point qui contient le nouveau point*/
+	  Face *f = lineSearch(Triangles[0], Vertices[iP]);
 
-	  /*  if (!f) {
-	    continue;
-	    }*/
-
-
-	  vector<Face*> cavity   ;
-	  vector<Edge> bnd       ;
-	  vector<Face*> otherSide;
-
+	  vector<Face*> cavity   ; /* Elements of the cavity */
+	  vector<Edge>  bnd      ; /* Boundary of the Cavity */
+	  vector<Face*> otherSide; /* Triangles attached to the Boundary */
+	  printf("Adding the %d th point\n",iP);
+	  /* delaunayCavity call himself in a recursively way */
 	  delaunayCavity(f, Vertices[iP], cavity, bnd, otherSide);
 	  //  printf("throw iP, bnd  = %i and cavity = %i ans other = %i \n",bnd.size(),cavity.size(),otherSide.size());
-	  if(bnd.size() != cavity.size() + 2) throw iP; //AS : without IPP
+	  if(bnd.size()!=cavity.size() + 2) throw iP; //AS : without iP
 	  // printf("throw iP 2 \n");
+
+	  printf("delaunayCavity was done sucessfully!\n");
+
 	  for (int i=0; i<cavity.size(); i++)
-	    {
-	      // reuse memory slots of invalid elements
-	      cavity[i]->deleted = false;
-	      cavity[i]->F[0] = cavity[i]->F[1] = cavity[i]->F[2] = NULL;
-	      cavity[i]->V[0] = bnd[i].vmin; // As: In course = bnd[ i ] .V[ 0 ] ;
-	      cavity[i]->V[1] = bnd[i].vmax; // AS : In course =bnd[ i ] .V[ 1 ] ;
-	      cavity[i]->V[2] = Vertices[iP];
-	    }
+	  {
+	  /* reuse memory slots of invalid elements */
+	    cavity[i]->deleted = false;
+	    cavity[i]->F[0] = cavity[i]->F[1] = cavity[i]->F[2] = NULL;
+	    cavity[i]->V[0] = bnd[i].vmin; // As: In course = bnd[ i ] .V[ 0 ] ;
+	    cavity[i]->V[1] = bnd[i].vmax; // AS : In course =bnd[ i ] .V[ 1 ] ;
+	    cavity[i]->V[2] = Vertices[iP];
+	  }
 
-	  //
-	    for (int i=0; i<otherSide.size(); i++) //AS : Not in the course
-	      {
-		otherSide[i]->deleted = false;
-	      }
+	  for (int i=0; i<otherSide.size(); i++) //AS : Not in the course
+	  {
+	  /* reuse memory slots of invalid elements */
+	  	otherSide[i]->deleted = false;
+	  }
 
-	  unsigned int cSize = cavity.size();
-
+	  /** Add the new triangles in the cavity **/
+	  unsigned cSize = cavity.size();
 	  for(int i=cSize; i<cSize+2; i++)
-	    {
-	      Face *newf = new Face(bnd[i].vmin,bnd[i].vmax,Vertices[iP]);
-	      Triangles.push_back(newf);
-	      cavity.push_back(newf);
-	    }
+	  {
+	  	Face *newf = new Face(bnd[i].vmin,bnd[i].vmax,Vertices[iP]);
+	    Triangles.push_back(newf);
+	    cavity.push_back(newf);
+	  }
 
 	  for(int i=0; i<otherSide.size(); i++)
-	    {
-	      if(otherSide[i])
-		{
-		  cavity.push_back(otherSide[i]);
-		}
-	    }
-	  computeAdjacencies(cavity);
-	}
-}
-Face* lineSearch(Face *f, Vertex *v)
-{
-  // printf("Sommet (%lf,%lf,%lf)\n",v[0].x,v[0].y,v[0].z);
-
-  while(1) 
-  {
-    // printf("Oz \n");
-      if(f==NULL){
-	//	printf("return 1 \n");
-	return NULL; // we should NEVER return here
-      }
-
-      if(f->inCircle(v)){
-	//	printf("incircle\n");
-	return f;
-      }
-      Vertex c = f->centroid();
-
-      for(int iNeigh=0; iNeigh<3; iNeigh++) {
-	Edge e = f->getEdge(iNeigh);
-	//	printf("ori \n");
-	if( orientationTest (&c, v, e.vmin) *
-	    orientationTest (&c, v, e.vmax) <0
-	    &&
-	    orientationTest (e.vmin, e.vmax, &c) *
-	    orientationTest (e.vmin, e.vmax,  v) <0)
 	  {
-	    //printf("if \n");
-	    f = f->F[iNeigh];
-	    break;
+	    if(otherSide[i]){cavity.push_back(otherSide[i]);}
 	  }
-	//	printf("break\n");
-      }
-      // printf("NEVER \n");
-      // return NULL; // we should NEVER return here
+	  computeAdjacencies(cavity);
+	  printf("Finish to add the %d th point\n",iP);
+	} /* Normally add all the points at the end */
+}
+
+
+
+Face* lineSearch(Face *f, Vertex *v) /* OK COMPRIS */
+{
+	/* f est le triangle de départ pour arriver au triangle final contenant le point*/
+	while(1) /* Condition infinie donc sortie forcée par return ou break*/
+  	{
+  		if(f==NULL)
+		return NULL; // we should NEVER return here
+
+    	if(f->inCircle(v))
+      	{
+			return f; /* Retourne le triangle de départ*/
+      	}
+
+      	Vertex c = f->centroid(); /* Cree un nouveau vertex qui est le centroide du triangle dans lequel se trouve le point */
+      	for(int iNeigh=0; iNeigh<3; iNeigh++) 
+      	{
+			Edge e = f->getEdge(iNeigh);
+
+			if( orientationTest(&c    , v     , e.vmin) * orientationTest(&c    , v     , e.vmax) <0
+	    	&&  orientationTest(e.vmin, e.vmax, &c    ) * orientationTest(e.vmin, e.vmax, v     ) <0)
+	  		{	
+			    f = f->F[iNeigh];
+	    		break;
+	  		}
+	  	}
+    printf("Bug in line lineSearch! :-(\n");
+    return NULL;           // we should NEVER return here
     }
 }
-int orientationTest(Vertex *a,Vertex *b, Vertex *c)
+
+
+int orientationTest(Vertex *a,Vertex *b, Vertex *c) /* OK COMPRIS*/
 {
 	return robustPredicates::orient2d ((double*) a, (double*) b, (double*) c);
 }
 
-void delaunayCavity(Face *f, Vertex *v, std::vector<Face*> &cavity, std::vector<Edge> &bnd, std::vector<Face*> &otherSide) //AS: In the course without the lines commented
+
+/** Fonction de selection des triangles faisant partie de la cavité (toujours convexe!) **/
+void delaunayCavity(Face *f, Vertex *v, vector<Face*> &cavity, vector<Edge> &bnd, vector<Face*> &otherSide) /* OK COMPRIS*/
 {
+	printf("Hello Cavity\n");
+	int i = 0;
   //printf("delaunayCavity, bnd  = %i and cavity = %i and other = %i \n",bnd.size(),cavity.size(),otherSide.size());
     if(f->deleted)
-     {
+    {
+    	printf("Already marked\n");
+    	return;
+    } /* Le triangle a déjà été marqué! */
+    /* Cette condition ne peut être remplie que pour un appel récursif de la fonction comme c'est le cas tout à la fin!*/
+
+    /* Ne retourne rien dans la fonction principale */
        // printf("if f-> deleted \n");
-     	return;
-     }
     //printf("after \n");
-    f->deleted = true; // Mark the triangle
+    f->deleted = true;     /* Mark the triangle to be deleted */
     cavity.push_back(f);
+
     //printf("delaunayCavity push_back, bnd  = %i and cavity = %i \n",bnd.size(),cavity.size());
     for(int iNeigh=0; iNeigh<3; iNeigh++)
     {
-        if(f->F[iNeigh] == NULL)
-	{
-            bnd.push_back(f->getEdge(iNeigh));
+        if(f->F[iNeigh] == NULL) /* Si le triangle est nul, on est sur le bord */
+        {
+        	bnd.push_back(f->getEdge(iNeigh)); /* Ajoute le coté à la frontière */
 	    // printf("delaunayCavity NULL bnd.push_back, bnd  = %i and cavity = %i \n",bnd.size(),cavity.size());
         }
-        else if(!f->F[iNeigh]->inCircle(v))
+        else if(!f->F[iNeigh]->inCircle(v)) /* Si le triangle voisin ne contient pas le point dans son périmètre alors... */
         {
-            bnd.push_back(f->getEdge(iNeigh));
+            bnd.push_back(f->getEdge(iNeigh)); /* On prends le coté commun et on l'ajoute à la frontière */
 	    // printf("delaunayCavity incircle bnd.push_back, bnd  = %i and cavity = %i \n",bnd.size(),cavity.size());
-
-	    if(!f->F[iNeigh]->deleted)
-		{
-                	otherSide.push_back(f->F[iNeigh]);
-                	f->F[iNeigh]->deleted = true;
-            	}
+	    	if(!f->F[iNeigh]->deleted) /* De plus si le triangle voisin n'est pas marqué... */
+			{
+            	otherSide.push_back(f->F[iNeigh]); /* On l'ajoute au triangles externe à la frontière */
+            	f->F[iNeigh]->deleted = true;      /* On marque aussi ces triangles car bien que correct on doit changer leur edges... par rapport à ceux des nouveaux triangles */
+        	}
         }
         else delaunayCavity(f->F[iNeigh], v, cavity, bnd, otherSide);
     }
 }
 
-
+/* Algorithm connecting triangles in a caviyt */
 void computeAdjacencies (std::vector<Face*> &cavity)
 {
-    std::map<Edge, std::pair<int , Face* > >edgeToFace;
+    std::map< Edge, std::pair<int,Face*> >edgeToFace;
 
     for(int iFace=0 ; iFace<cavity.size() ; iFace++)
     {
         for (int iEdge=0; iEdge < 3 ; iEdge ++)
         {
             Edge edge = cavity[iFace]->getEdge(iEdge);
+            std::map < Edge, std::pair < int, Face* > >::iterator it = edgeToFace.find(edge);
 
-	    std::map < Edge, std::pair < int, Face* > >::iterator it = edgeToFace.find(edge);
-
-	    if(it == edgeToFace.end())
-            {// edge has not yet been touched , so create an entry
-                edgeToFace.insert(std::make_pair (edge,std::make_pair(iEdge, cavity[iFace])));
-            }
-            else
-            { // Connect the two neighboring triangles
-                cavity[iFace]->F[iEdge]  = it->second.second;
-                it->second.second->F[it->second.first] = cavity[iFace];
-                // Erase edge from the map
-                edgeToFace.erase(it);
-            }
-        }
+	    	if(it == edgeToFace.end())
+        	{/* edge has not yet been touched , so create an entry */
+            	edgeToFace.insert(std::make_pair(edge,std::make_pair(iEdge, cavity[iFace])));
+        	}
+        	else
+        	{ 	/* Connect the two neighboring triangles */
+            	cavity[iFace]->F[iEdge]  = it->second.second;
+            	it->second.second->F[it->second.first] = cavity[iFace];
+            	/* Erase edge from the map */
+            	edgeToFace.erase(it);
+        	}
+    	}
     }
 }
 
@@ -271,7 +270,6 @@ void computeAdjacencies (std::vector<Face*> &cavity)
 /************************************************/
 /** PRINTING FUNCTIONS FOR DELAUNAY STRUCTURES **/
 /************************************************/
-// to display the vector S
 
 void printVertices(std::vector<Vertex*> &Vertices)
 {

@@ -45,15 +45,15 @@ struct Edge //In the course
 };
 
 /**** METHODE DE ROBUST PREDICATES *****/
-int orientationTest(Vertex *a, Vertex *b, Vertex *c); //Can be found in rubust predicate
+int orientationTest(Vertex *a, Vertex *b, Vertex *c);
+// On doit placer la méthode là car utilisée par struct Face
 /**** METHODE DE ROBUST PREDICATES *****/
-
 struct Face
 {
   Face   *F[3]; /* Tableau de 3 triangles */
   Vertex *V[3]; /* Tableau de 3 points    */
-  /* Initialisation variable booleenne de nom "deleted" */
-  bool deleted;
+  bool deleted; /* Permet de savoir si on doit supprimer le triangle ou non */
+  
   /* Constructeur Face */
   Face (Vertex *v0, Vertex *v1, Vertex *v2)
   {
@@ -69,22 +69,49 @@ struct Face
     F[0] = F[1] = F[2] = NULL;
     deleted = false; //In the course
   }
+  /*** METHODES DE FACE ***/
   Edge getEdge(int k)
   {
-    return Edge(V[k],V[(k+1)%3]) ;
+    return Edge(V[k],V[(k+1)%3]); /* %3 permet de retourner O si k=3 :-) */
   }
-  bool inCircle (Vertex *d) {
-  double circ = robustPredicates::incircle((double*) V[0], (double *) V[1], (double*) V[2], (double*) d);
+  /************ robustPredicates::incircle ************/
+  /* Si + et sens anti-horloger => Dans     le cercle */
+  /* Si + et sens horloger      => Pas dans le cercle */
+  /* Si O                       => Cocicrulaires!     */
+  /* Si - et sens anti-horloger => Pas dans le cercle */
+  /* Si - et sens horloger      => Dans     le cercle */
 
-  return circ>=0.0;
-  }/* Can be found in Robust Predicates */
-
-  Vertex centroid () //Function not given
+  /************ robustPredicates::orient2d ************/
+  /* Si sens anti-horloger => +      */
+  /* Si colinéaire         => O      */
+  /* Si sens horloger      => -      */
+  
+  
+  bool inCircle (Vertex *d) /** OK **/
   {
-  double cx = ((V[0]->x)   + (V[1]->x)   + (V[2]->x));
-  double cy = ((V[0]->y)   + (V[1]->y)   + (V[2]->y));
-  double cz = ((V[0]->val) + (V[1]->val) + (V[2]->val));
-  return Vertex(cx/3.0,cy/3.0,cz/3.0); // bits aleatoire qui ne servira a rien
+    double circ = robustPredicates::incircle((double*) V[0], (double *) V[1], (double*) V[2], (double*) d);
+    double sign = robustPredicates::orient2d((double*) V[0], (double *) V[1], (double*) V[2]);
+    /* sign should NEVER be egal to 0 */
+    if(sign*circ >= 0.0)  /* ATTENTION NE TRAITE PAS LE CAS COCIRCULAIRE */
+    {
+      return true;
+    }
+    else if (sign*circ < 0.0)
+    {
+      return false;
+    }
+    return 0; /* Should be treated ... */
+    /* True  if in Circle */
+    /* False if in Circle */
+  }
+  
+  /* Simply compute the centroid in the triangle*/
+  Vertex centroid() 
+  {
+    double cx = ((V[0]->x)   + (V[1]->x)   + (V[2]->x));
+    double cy = ((V[0]->y)   + (V[1]->y)   + (V[2]->y));
+    double cz = ((V[0]->val) + (V[1]->val) + (V[2]->val));
+    return Vertex(cx/3.0,cy/3.0,cz/3.0); // bits aleatoire qui ne servira a rien
   }
 };
 
@@ -110,7 +137,7 @@ void HilbertCoord (double x, double y,double x0, double y0, double xRed, double 
 void  delaunayTrgl(vector<Vertex*> &Vertices, vector<Face*> &Triangles);//,char *name);
 void  computeAdjacencies(std::vector<Face*> &cavity);
 Face* lineSearch(Face *f, Vertex *v);
-void  delaunayCavity(Face *f, Vertex *v, std::vector<Face*> &cavity, std::vector<Edge> &bnd, std::vector<Face*> &otherSide);
+void  delaunayCavity(Face *f, Vertex *v, vector<Face*> &cavity, vector<Edge> &bnd, vector<Face*> &otherSide);
 
 #endif
 
