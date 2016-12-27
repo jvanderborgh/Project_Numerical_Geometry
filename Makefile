@@ -15,9 +15,9 @@ all: $(EXEC)
 $(EXEC): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-functions_nous.o: functions_nous.cpp struct.h
+functions_nous.o: reader_writer.cpp struct.h
 	$(CC) -o $@ -cpp $< $(CFLAGS)
-functions_prof.o: functions_prof.cpp struct.h functions_prof.h robustPredicates.h
+functions_prof.o: functions.cpp structures.h functions.h robustPredicates.h
 	$(CC) -o $@ -cpp $< $(CFLAGS)
 robustPredicates.o: robustPredicates.cpp
 	$(CC) -o $@ -cpp $< $(CFLAGS)

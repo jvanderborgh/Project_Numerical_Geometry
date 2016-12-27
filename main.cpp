@@ -4,7 +4,6 @@
 #include <math.h>
 #include <chrono>
 #include <time.h>
-#include <getopt.h>
 #include "struct.h"
 #include "functions_prof.h"
 #include "functions_nous.h"
@@ -13,18 +12,6 @@ using namespace std;
 using namespace robustPredicates;
 
 const int nbits = 8;
-
-
-void printhelp()
-{
-    FILE *file = fopen("../_Readme.md","r");
-    char buf[1000]; if (!file) return;
-    while(fgets(buf,1000,file)!= NULL)
-    {
-        printf("%s",buf);
-    }
-    fclose(file);
-}
 
 int main(int argc, char const *argv[])
 {
@@ -81,6 +68,17 @@ int main(int argc, char const *argv[])
     /* Writing file */
     file_write(vect_V,vect_F,vect_S,output,verbose);
     // END
-
+    printf("~~~~----------------------~~~~   THE END ~~~~~----------------------~~~~");
     return 0;
+}
+
+void printhelp()
+{
+    FILE *file = fopen("../_Readme.md","r");
+    char buf[1000]; if (!file) return;
+    while(fgets(buf,1000,file)!= NULL)
+    {
+        printf("%s",buf);
+    }
+    fclose(file);
 }
