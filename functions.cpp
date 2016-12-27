@@ -10,6 +10,40 @@ using namespace robustPredicates;
 
 static int verb;
 
+void superTriangles(std::vector<Face*> &T, std::vector<Vertex*> &D, double &xmin, double &xmax, double &ymin, double &ymax, double &x0, double &y0, double &xRed, double &yRed, double &xBlue, double &yBlue)
+{
+    // MAKING SUPER-TRIANGLES
+//    if(verbose>0){printf("> Making supr-trngs\n");}
+
+    double x,y,z;
+    x = xmax-xmin;
+    y = ymax-ymin;
+    double L = max(x,y);
+    x = 0.5*(xmax+xmin);
+    y = 0.5*(ymax+ymin);
+    x0 = x;
+    y0 = y;
+    xRed  = L;
+    yBlue = L;
+    xmin = x-L; //printf("%f\n",xmin);
+    xmax = x+L; //printf("%f\n",xmax);
+    ymin = y-L; //printf("%f\n",ymin);
+    ymax = y+L; //printf("%f\n",ymax);
+    Vertex* T1 = new Vertex(xmin,ymin,0.0);
+    Vertex* T2 = new Vertex(xmax,ymin,0.0);
+    Vertex* T3 = new Vertex(xmax,ymax,0.0);
+    Vertex* T4 = new Vertex(xmin,ymax,0.0);
+    D.push_back(T1);
+    D.push_back(T2);
+    D.push_back(T3);
+    D.push_back(T4);
+    Face* F1 = new Face(T1,T2,T4);
+    Face* F2 = new Face(T2,T3,T4);
+    F1->F[1] = F2;
+    F2->F[2] = F1;
+    T.push_back(F1);
+    T.push_back(F2);
+}
 void computeAdjacencies (std::vector<Face*> &cavity)
 {
     std::map<Edge, std::pair<int, Face*> >edgeToFace;

@@ -1,7 +1,7 @@
 #ifndef READER_WRITER_H
 #define READER_WRITER_H
 #include "structures.h"
-void read_nodes_txt(std::vector<Vertex*> &S, std::vector<Face*> &T, std::vector<Vertex*> &D, const char* filename, double* x0, double* y0, double* xRed, double* yRed, double* xBlue, double* yBlue, int verbose);
+void read_nodes_txt(std::vector<Vertex*> &S, std::vector<Face*> &T, const char* filename, double &xmin, double &ymin, double &zmin, double &xmax, double &ymax, double &zmax, int verbose);
 void write_gmsh_txt(std::vector<Vertex*> &S, std::vector<Face*> &T, std::vector<Vertex*> &D, const char* filename, int verbose);
 
 void write_gmsh_Hilbert(const char* filename, std::vector <Vertex*> &V);

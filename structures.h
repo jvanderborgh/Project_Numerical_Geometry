@@ -41,7 +41,7 @@ struct Face{
 		V[0] = v0; 
 		V[1] = v1; 
 		V[2] = v2;
-		F[0] = F[1] = F[2] NULL;
+		F[0] = F[1] = F[2] = NULL;
 		deleted = false;
     }
 	Edge getEdge(int k)

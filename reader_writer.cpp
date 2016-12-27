@@ -31,83 +31,71 @@ using namespace std;
 #define MSH_ASSERT(...)
 #endif
 
-void read_nodes_txt(vector<Vertex*> &S, vector<Face*> &T, vector<Vertex*> &D, const char* filename, double* x0, double* y0, double* xRed, double* yRed, double* xBlue, double* yBlue, int verbose)
+void read_nodes_txt(vector<Vertex*> &S, vector<Face*> &T, const char* filename, double &xmin, double &ymin, double &zmin, double &xmax, double &ymax, double &zmax, int verbose)
 {
     // OPENING file
     if(verbose>0)
         {printf("Opening file %s\n",filename);}
+    MSH_ASSERT(filename!=NULL);
     FILE *file = fopen(filename,"r");
+    if(file==NULL)
+        MSH_ERROR("Cannot open file %s",filename);
+
     // PUSHING VERT
     if(verbose>0){printf("> Making vertices\n");}
     int n = 0;
     char c;
-    double xmin;
-    double xmax;
-    double ymin;
-    double ymax;
-    double zmin;
-    double zmax;
-    double x;
-    double y;
-    double z;
+    double xin(NAN),yin(NAN),zin(NAN);
     while(!feof(file))
     {
-        x = NAN; // TO AVOID BLANK LINE
-        y = NAN; // TO AVOID BLANK LINE
-        z = NAN; // TO AVOID BLANK LINE
-        // READING A LINE
-        fscanf(file,"%lf",&x); //printf("%f\n",x);
-        xmin = min(xmin,x);
-        xmax = max(xmax,x);
-        fscanf(file,"%lf",&y); //printf("%f\n",y);
-        ymin = min(ymin,y);
-        ymax = max(ymax,y);
-        fscanf(file,"%lf",&z); //printf("%f\n",z);
-        zmin = min(zmin,z);
-        zmax = max(zmax,z);
-        fscanf(file,"%c", &c); //printf("%c\n",c);
-        // MAKING THE VERTEX
-        if(isnan(x)) break;
-        //printf("x : %f ; y = %f ; z = %f\n",x   ,y   ,z   );
-        Vertex* V = new Vertex(x,y,z);
+        xin = yin = zin = NAN;  
+        /* Reading a line */
+        fscanf(file,"%lf %lf %lf",&xin,&yin,&zin); 
+        xmin = min(xmin,xin);
+        xmax = max(xmax,xin);
+        ymin = min(ymin,yin);
+        ymax = max(ymax,yin);
+        zmin = min(zmin,zin);
+        zmax = max(zmax,zin);
+        fscanf(file,"%c", &c);
+        /* Making the Vertex */
+        if(isnan(xin)) break;
+        Vertex* V = new Vertex(xin,yin,zin);
         S.push_back(V); n++;
-//        printf("x : %f ; y = %f ; z = %f\n",V->x,V->y,V->z);
     }
     if(verbose>0){printf("> %i vertices\n",n);}
 
-    // MAKING SUPER-TRIANGLES
-    if(verbose>0){printf("> Making supr-trngs\n");}
-//    printf("%f\n",xmin);
-//    printf("%f\n",xmax);
-//    printf("%f\n",ymin);
-//    printf("%f\n",ymax);
-    x = xmax-xmin;
-    y = ymax-ymin;
-    double L = max(x,y);
-    x = 0.5*(xmax+xmin);
-    y = 0.5*(ymax+ymin);
-    *x0 = x;
-    *y0 = y;
-    *xRed  = L;
-    *yBlue = L;
-    xmin = x-L; //printf("%f\n",xmin);
-    xmax = x+L; //printf("%f\n",xmax);
-    ymin = y-L; //printf("%f\n",ymin);
-    ymax = y+L; //printf("%f\n",ymax);
-    Vertex* T1 = new Vertex(xmin,ymin,0.0);
-    Vertex* T2 = new Vertex(xmax,ymin,0.0);
-    Vertex* T3 = new Vertex(xmax,ymax,0.0);
-    Vertex* T4 = new Vertex(xmin,ymax,0.0);
-    D.push_back(T1);
-    D.push_back(T2);
-    D.push_back(T3);
-    D.push_back(T4);
-    Face* F1 = new Face(T1,T2,T4);
-    Face* F2 = new Face(T2,T3,T4);
-    F1->F[1] = F2;
-    F2->F[2] = F1;
-    T.push_back(F1);
-    T.push_back(F2);
+    // // MAKING SUPER-TRIANGLES
+    // if(verbose>0){printf("> Making supr-trngs\n");}
+
+    // double x,y,z;
+    // x = xmax-xmin;
+    // y = ymax-ymin;
+    // double L = max(x,y);
+    // x = 0.5*(xmax+xmin);
+    // y = 0.5*(ymax+ymin);
+    // *x0 = x;
+    // *y0 = y;
+    // *xRed  = L;
+    // *yBlue = L;
+    // xmin = x-L; //printf("%f\n",xmin);
+    // xmax = x+L; //printf("%f\n",xmax);
+    // ymin = y-L; //printf("%f\n",ymin);
+    // ymax = y+L; //printf("%f\n",ymax);
+    // Vertex* T1 = new Vertex(xmin,ymin,0.0);
+    // Vertex* T2 = new Vertex(xmax,ymin,0.0);
+    // Vertex* T3 = new Vertex(xmax,ymax,0.0);
+    // Vertex* T4 = new Vertex(xmin,ymax,0.0);
+    // D.push_back(T1);
+    // D.push_back(T2);
+    // D.push_back(T3);
+    // D.push_back(T4);
+    // Face* F1 = new Face(T1,T2,T4);
+    // Face* F2 = new Face(T2,T3,T4);
+    // F1->F[1] = F2;
+    // F2->F[2] = F1;
+    // T.push_back(F1);
+    // T.push_back(F2);
     // CLOSING file
     if(verbose>0){printf("Closing file %s\n",filename);}
     if(verbose>0){printf("\n");}

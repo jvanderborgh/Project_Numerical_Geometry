@@ -19,16 +19,21 @@ int main(int argc, char const *argv[])
     const char* input  = "In/Exemple3.in";
     const char* output = "Out/Triangle.out";
     std::chrono::time_point<std::chrono::system_clock> start,end;
-     // BEGIN
-    if(verbose>0){printf("-----  -------============-------  -----\n|---    ------Main running------    ---|\n-----  -------============-------  -----\n\n");}
-    /* Vectors initialisation */
+    printf("-----  -------============-------  -----\n");
+    printf("|---    ------Main running------    ---|\n");
+    printf("-----  -------============-------  -----\n\n");
+    /* Vectors initialization */
     vector<Vertex*> vect_V;
-    vector<Vertex*> vect_S;
+    vector<Vertex*> vect_D;
     vector<Face*>   vect_F;
-    double x0(0), xRed(1), xBlue(0);
-    double y0(0), yRed(0), yBlue(1);
+    double xmin(0.0), ymin(0.0), zmin(0.0);
+    double xmax(0.0), ymax(0.0), zmax(0.0);
+    double x0(0.0), xRed(1.0), xBlue(0.0);
+    double y0(0.0), yRed(0.0), yBlue(1.0);
     /* Reading file */
-    read_nodes_txt(vect_V,vect_F,vect_S,input,&x0,&y0,&xRed,&yRed,&xBlue,&yBlue,verbose);
+    read_nodes_txt(vect_V,vect_F, input, xmin, ymin, zmin, xmax, ymax, zmax,verbose);
+    superTriangles(vect_F,vect_D, xmin, xmax, ymin, ymax, x0, y0, xRed, yRed, xBlue, yBlue);
+
     /****** Begin HILBERT *******/
     for(int i = 0 ; i < vect_V.size() ; i++) 
     { 
@@ -64,7 +69,7 @@ int main(int argc, char const *argv[])
     if(verbose>0){printf("------------------%.3Es \n", elapsed_seconds.count());}
     if(verbose>0){printf("\n");}
     /* Writing file */
-    write_gmsh_txt(vect_V,vect_F,vect_S,output,verbose);
+    write_gmsh_txt(vect_V,vect_F,vect_D,output,verbose);
     // END
     printf("~~~~----------------------~~~~   THE END ~~~~~----------------------~~~~");
     return 0;
