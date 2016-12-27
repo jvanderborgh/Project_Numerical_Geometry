@@ -28,13 +28,14 @@ int main(int argc, char const *argv[])
     double x0(0), xRed(1), xBlue(0);
     double y0(0), yRed(0), yBlue(1);
     /* Reading file */
-    file_read(vect_V,vect_F,vect_S,input,&x0,&y0,&xRed,&yRed,&xBlue,&yBlue,verbose);
+    read_nodes_txt(vect_V,vect_F,vect_S,input,&x0,&y0,&xRed,&yRed,&xBlue,&yBlue,verbose);
     /****** Begin HILBERT *******/
     for(int i = 0 ; i < vect_V.size() ; i++) 
     { 
         HilbertCoord(x0,y0,xRed,yRed,xBlue,yBlue,vect_V[i],nbits); 
     }
     sort(vect_V.begin(),vect_V.end(),vCompare);
+    write_gmsh_Hilbert("Out/Hilbert.out",vect_V); /* +4 pour les super triangles!!! */
     /******* End HILBERT ********/
 
     // if(verbose>1)
@@ -63,7 +64,7 @@ int main(int argc, char const *argv[])
     if(verbose>0){printf("------------------%.3Es \n", elapsed_seconds.count());}
     if(verbose>0){printf("\n");}
     /* Writing file */
-    file_write(vect_V,vect_F,vect_S,output,verbose);
+    write_gmsh_txt(vect_V,vect_F,vect_S,output,verbose);
     // END
     printf("~~~~----------------------~~~~   THE END ~~~~~----------------------~~~~");
     return 0;

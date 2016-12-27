@@ -1,10 +1,37 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <vector>
 #include <math.h>
 #include "structures.h"
 using namespace std;
 
-void file_read(vector<Vertex*> &S, vector<Face*> &T, vector<Vertex*> &D, const char* filename, double* x0, double* y0, double* xRed, double* yRed, double* xBlue, double* yBlue, int verbose)
+/********************************************************
+ *  SOME MACRO FOR ERROR MESSAGES
+ *  (maybe put that into some header, it's very usefull)
+ ********************************************************/
+#define MSH_ERROR(msg, ...) do{ \
+    fprintf(stderr,"\e[1;31m\n== ERROR (%s -> %s:%d):\n\e[0m\t" msg \
+        "\nExiting Program...\n\n",__func__,__FILE__,__LINE__,##__VA_ARGS__); \
+    exit(EXIT_FAILURE); \
+    } while(0)
+
+#define MSH_WARN(msg,...) \
+    fprintf(stderr,"\nwarning (%s -> %s:%d): " msg "\n",__func__,__FILE__,__LINE__,##__VA_ARGS__);
+
+#ifdef DEBUG
+#define MSH_ASSERT(exp,...) do{ \
+        if(!(exp)) { \
+            fprintf(stderr,"\e[1;31m\n== ERROR (%s -> %s:%d):\t assertion (" #exp ") Failed\n\e[0m\t" __VA_ARGS__ \
+            "\nExiting Program...\n\n",__func__,__FILE__,__LINE__); \
+            exit(EXIT_FAILURE); \
+        }\
+    } while(0)
+
+#else
+#define MSH_ASSERT(...)
+#endif
+
+void read_nodes_txt(vector<Vertex*> &S, vector<Face*> &T, vector<Vertex*> &D, const char* filename, double* x0, double* y0, double* xRed, double* yRed, double* xBlue, double* yBlue, int verbose)
 {
     // OPENING file
     if(verbose>0)
@@ -89,7 +116,7 @@ void file_read(vector<Vertex*> &S, vector<Face*> &T, vector<Vertex*> &D, const c
     return;
 }
 
-void file_write(std::vector<Vertex*> &S, std::vector<Face*> &T, vector<Vertex*> &D, const char* filename, int verbose)
+void write_gmsh_txt(std::vector<Vertex*> &S, std::vector<Face*> &T, vector<Vertex*> &D, const char* filename, int verbose)
 {
     // OPENING file
     if(verbose>0){printf("Opening file %s\n",filename);}
@@ -155,6 +182,42 @@ void file_write(std::vector<Vertex*> &S, std::vector<Face*> &T, vector<Vertex*> 
     return;
 }
 
+void write_gmsh_Hilbert(const char* filename, std::vector <Vertex*> &V)
+{
+    MSH_ASSERT(filename!=NULL); // Ok compris
+    FILE* file = fopen(filename,"w");  //"w" argument pour dire qu'on écrit/write un fichier
+    if(file==NULL)
+        MSH_ERROR("Cannot open file %s",filename);
+    /* Format for gmsh: in section 9.2 MSH binary file format */
+    unsigned nVert = V.size();
+    fprintf(file,"$MeshFormat\n"  
+                "2.2 0 %u\n"
+                "$EndMeshFormat\n"
+                "$Nodes\n"
+                "%u\n",(unsigned) sizeof(double),nVert);
+
+    for(int i=0; i<nVert; i++)
+    fprintf(file,"%u %.10E %.10E 0.0\n",i+1,V[i]->x,V[i]->y);
+    fprintf(file,"$EndNodes\n");
+    /********** End print the nodes *******/
+  
+    /********** print the elements ********/
+    fprintf(file,"$Elements\n"
+                "%u\n",nVert-2);       //
+    for(int i =0; i < nVert-2; i++)
+    fprintf(file,"%u 1 0 %u %u \n",i+1,i+1,i+2);
+    fputs("$EndElements\n",file);
+    /****** End print the elements *******/
+
+    /******** print the nodes data ******/
+    fprintf(file,"$NodeData\n"
+                "1\n\"Hilbert_Sorting\"\n"
+                "1\n0.0\n3\n0\n1\n%u\n",nVert); 
+    for (int i=0; i<nVert; i++)
+    fprintf(file,"%u %.10E\n",i+1,V[i]->z);
+    fputs("$EndNodeData",file);
+    fclose(file);
+}
 
 bool vCompare(Vertex* v1, Vertex* v2)
 {
