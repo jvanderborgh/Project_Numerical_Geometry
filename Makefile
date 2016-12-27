@@ -15,16 +15,18 @@ all: $(EXEC)
 $(EXEC): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-reader_writer.o: reader_writer.cpp reader_writer.h
+functions_nous.o: functions_nous.cpp struct.h
+	$(CC) -o $@ -cpp $< $(CFLAGS)
+functions_prof.o: functions_prof.cpp struct.h functions_prof.h robustPredicates.h
+	$(CC) -o $@ -cpp $< $(CFLAGS)
+robustPredicates.o: robustPredicates.cpp
 	$(CC) -o $@ -cpp $< $(CFLAGS)
 
-structures.o: structures.cpp structures.h
-	$(CC) -o $@ -cpp $< $(CFLAGS)	
 
 #DT.o: DT.cpp DT.h
 #	$(CC) -o $@ -cpp $< $(CFLAGS)
 
-main.o: main.cpp reader_writer.h robustPredicates.h structures.h
+main.o: main.cpp struct.h functions_prof.h functions_nous.h robustPredicates.h
 	$(CC) -o $@ -cpp $< $(CFLAGS)
 
 

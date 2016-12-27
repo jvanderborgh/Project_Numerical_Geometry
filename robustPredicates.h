@@ -7,8 +7,7 @@
 #define _ROBUST_PREDICATES_H_
 
 // namespace necessary to avoid conflicts with predicates used by Tetgen
-namespace robustPredicates
-{
+namespace robustPredicates{
 double exactinit();
 double incircle(double *pa, double *pb, double *pc, double *pd);
 double insphere(double *pa, double *pb, double *pc, double *pd, double *pe);

@@ -1624,10 +1624,13 @@ REAL orient2d(REAL *pa, REAL *pb, REAL *pc)
   REAL detleft, detright, det;
   REAL detsum, errbound;
 
-  detleft = (pa[0] - pc[0]) * (pb[1] - pc[1]);
+//  printf("pa,pb,pc = (%.3E,%.3E)(%.3E,%.3E)(%.3E,%.3E)\n",pa[0],pa[1],pb[0],pb[1],pc[0],pc[1]);
+  detleft  = (pa[0] - pc[0]) * (pb[1] - pc[1]);
+//  printf("detL = %.3E\n",detleft);
   detright = (pa[1] - pc[1]) * (pb[0] - pc[0]);
+//  printf("detR = %.3E\n",detright);
   det = detleft - detright;
-
+//  printf("det = %.3E\n",det);
   if (detleft > 0.0) {
     if (detright <= 0.0) {
       return det;
@@ -2309,8 +2312,6 @@ REAL orient3d(REAL *pa, REAL *pb, REAL *pc, REAL *pd)
 
 REAL orient3d(REAL *pa, REAL *pb, REAL *pc, REAL *pd)
 {
-  return orient3dexact(pa, pb, pc, pd);
-
   REAL adx, bdx, cdx, ady, bdy, cdy, adz, bdz, cdz;
   REAL bdxcdy, cdxbdy, cdxady, adxcdy, adxbdy, bdxady;
   REAL det;
@@ -2344,7 +2345,6 @@ REAL orient3d(REAL *pa, REAL *pb, REAL *pc, REAL *pd)
     if (det < -o3dstaticfilter) return det;
   }
 
-  //  printf("coucou %22.15E\n",o3derrboundA);
 
   permanent = (Absolute(bdxcdy) + Absolute(cdxbdy)) * Absolute(adz)
             + (Absolute(cdxady) + Absolute(adxcdy)) * Absolute(bdz)
@@ -2354,9 +2354,6 @@ REAL orient3d(REAL *pa, REAL *pb, REAL *pc, REAL *pd)
     return det;
   }
 
-  printf("argh det %22.15E %22.15E %22.15E\n",det,permanent,orient3dexact(pa, pb, pc, pd) );
-  getchar();
-  
   return orient3dadapt(pa, pb, pc, pd, permanent);
 }
 
@@ -2365,9 +2362,9 @@ REAL orient3d(REAL *pa, REAL *pb, REAL *pc, REAL *pd)
 /*****************************************************************************/
 /*                                                                           */
 /*  incirclefast()   Approximate 2D incircle test.  Nonrobust.               */
-/*  incircleexact()  Exact 2D incircle test.  Robust.                       */
+/*  incircleexact()   Exact 2D incircle test.  Robust.                       */
 /*  incircleslow()   Another exact 2D incircle test.  Robust.                */
-/*  incircle()       Adaptive exact 2D incircle test.  Robust.                   */
+/*  incircle()   Adaptive exact 2D incircle test.  Robust.                   */
 /*                                                                           */
 /*               Return a positive value if the point pd lies inside the     */
 /*               circle passing through pa, pb, and pc; a negative value if  */
