@@ -1,8 +1,8 @@
 #include <map>
 #include <stdio.h>
 #include <vector>
-#include "struct.h"
-#include "functions_prof.h"
+#include "structures.h"
+#include "functions.h"
 #include "robustPredicates.h"
 
 using namespace std;

@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <vector>
 #include <math.h>
-#include "struct.h"
+#include "structures.h"
 using namespace std;
 
 void file_read(vector<Vertex*> &S, vector<Face*> &T, vector<Vertex*> &D, const char* filename, double* x0, double* y0, double* xRed, double* yRed, double* xBlue, double* yBlue, int verbose)
 {
     // OPENING file
-    if(verbose>0){printf("Opening file %s\n",filename);}
+    if(verbose>0)
+        {printf("Opening file %s\n",filename);}
     FILE *file = fopen(filename,"r");
     // PUSHING VERT
     if(verbose>0){printf("> Making vertices\n");}
