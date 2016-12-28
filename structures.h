@@ -68,7 +68,7 @@ struct Face
 		double A[2]; A[0] = V[0]->x; A[1] = V[0]->y;
     	double B[2]; B[0] = V[1]->x; B[1] = V[1]->y;
     	double C[2]; C[0] = V[2]->x; C[1] = V[2]->y;
-    	double D[2]; D[0] = c->x;    D[1] = c->y;
+    	double D[2]; D[0] =  c  ->x; D[1] =  c  ->y;
     	/************ robustPredicates::incircle ************/
   		/* Si + et sens anti-horloger => Dans     le cercle */
   		/* Si + et sens horloger      => Pas dans le cercle */
@@ -83,6 +83,7 @@ struct Face
 		double E = robustPredicates::incircle(A,B,C,D) * robustPredicates::orient2d(A,B,C);
 		return E>0.0;
 	}
+	/* Simply compute the centroid in the triangle*/
 	Vertex centroid()
 	{	
 		double cx = ((V[0]->x) + (V[1]->x) + (V[2]->x));

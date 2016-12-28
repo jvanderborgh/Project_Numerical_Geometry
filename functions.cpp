@@ -1,5 +1,7 @@
 #include <map>
 #include <stdio.h>
+#include <iostream>
+#include <algorithm>
 #include <vector>
 #include "structures.h"
 #include "functions.h"
@@ -11,23 +13,17 @@ using namespace robustPredicates;
 
 static int verb;
 
-void superTriangles(vector<Face*> &T, vector<Vertex*> &D, double &xmin, double &xmax, double &ymin, double &ymax, double &x0, double &y0, double &xRed, double &yRed, double &xBlue, double &yBlue)
+void superTriangles(vector<Face*> &T, vector<Vertex*> &D, double &xmin, double &xmax, double &ymin, double &ymax, double &L)
 {
-    // MAKING SUPER-TRIANGLES
 //    if(verbose>0){printf("> Making supr-trngs\n");}
+    /* Initialisation of some values */
     double x,y,z;
     const double color = 0.4;  /* 0.0->Blue or 0.2->Magenta or 0.3-> Green or 0.4->Yellow or 0.5->Red */
-    const double distC = 1.0;  /* min = 0.5 =>>> max = 10.0 */
-    x = xmax-xmin;
-    y = ymax-ymin;
-    double L = max(x,y);
+    const double distC = 0.75;  /* min = 0.5(risky!) =>>> max = 10.0 (or more) */
     x = 0.5*(xmax+xmin); 
     y = 0.5*(ymax+ymin);
-    printf("x = %f; y = %f\n",x,y);
-    x0 = x;
-    y0 = y;
-    xRed  = L;
-    yBlue = L;  // A RECHANGER
+
+    /* Creating the two first super Triangles */
     xmin = x-distC*L;
     xmax = x+distC*L;
     ymin = y-distC*L;
@@ -48,6 +44,26 @@ void superTriangles(vector<Face*> &T, vector<Vertex*> &D, double &xmin, double &
     T.push_back(F2);
 }
 
+/* Function not working totally for unknowmn reason*/
+void supressBigTriangles(vector<Face*> &T, double &xmin, double &xmax, double &ymin, double &ymax)
+{
+    double *xminT,*xmaxT,*yminT,*ymaxT;
+    const double marge = 0.0;
+    for (int r = 0; r < 2; ++r)
+    {
+    for (int i = 0; i < T.size(); ++i)
+    {
+        double X[] = {T[i]->V[0]->x,T[i]->V[1]->x,T[i]->V[2]->x};
+        xminT = min_element(begin(X),end(X));
+        xmaxT = max_element(begin(X),end(X));
+        double Y[] = {T[i]->V[0]->y,T[i]->V[1]->y,T[i]->V[2]->y};
+        yminT = min_element(begin(Y),end(Y));
+        ymaxT = max_element(begin(Y),end(Y));
+        if(*xminT<=xmin+marge||*xmaxT+marge>=xmax||*yminT-marge<=ymin||*ymaxT+marge>=ymax)
+            T.erase(T.begin()+i);
+    }
+    }
+}
 /********  Hilbert ********/
 void HilbertCoord(double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, Vertex* V)
 {

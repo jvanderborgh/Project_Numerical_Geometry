@@ -44,7 +44,6 @@ void read_nodes_txt(vector<Vertex*> &S, vector<Face*> &T, const char* filename, 
     // PUSHING VERT
     if(verbose>0){printf("> Making vertices\n");}
     int n = 0;
-    char c;
     double xin(NAN),yin(NAN),zin(NAN);
     while(!feof(file))
     {
@@ -57,7 +56,6 @@ void read_nodes_txt(vector<Vertex*> &S, vector<Face*> &T, const char* filename, 
         ymax = max(ymax,yin);
         zmin = min(zmin,zin);
         zmax = max(zmax,zin);
-        fscanf(file,"%c", &c);
         /* Making the Vertex */
         if(isnan(xin)) break;
         Vertex* V = new Vertex(xin,yin,zin);
@@ -71,15 +69,15 @@ void read_nodes_txt(vector<Vertex*> &S, vector<Face*> &T, const char* filename, 
     return;
 }
 
-void write_gmsh_txt(vector<Vertex*> &S, vector<Face*> &T, vector<Vertex*> &D, const char* filename, int verbose)
+void write_gmsh_Delaunay(vector<Vertex*> &S, vector<Face*> &T, vector<Vertex*> &D, const char* filename, int verbose)
 {
     // OPENING file
     if(verbose>0){printf("Opening file %s\n",filename);}
     FILE *file = fopen(filename,"w");
     // Initialisation
-    int nVert = S.size();
-    int nTrng = T.size();
-    int nSupr = D.size();
+    int nV = S.size();
+    int nD = D.size();
+    int nT = T.size();
     int a;
     int b;
     int c;
@@ -92,24 +90,24 @@ void write_gmsh_txt(vector<Vertex*> &S, vector<Face*> &T, vector<Vertex*> &D, co
     // Writing Vertices
     if(verbose>0){printf("> Writing Vertices\n");}
     fprintf(file,"$Nodes\n");
-    fprintf(file,"%i\n",nVert+nSupr);
-    for(int i = 0; i<nVert ; i++)
+    fprintf(file,"%i\n",nV+nD);
+    for(int i = 0; i<nV ; i++)
     {
         fprintf(file,"%i %f %f %f\n",   i+1   ,S[i]->x,S[i]->y,S[i]->z);
         v.push_back(S[i]); S[i]->index = i+1;
     }
-    for(int i = 0; i<nSupr ; i++)
+    for(int i = 0; i<nD ; i++)
     {
-        fprintf(file,"%i %f %f %f\n",i+1+nVert,D[i]->x,D[i]->y,D[i]->z); 
-        v.push_back(D[i]); D[i]->index = i+1+nVert;
+        fprintf(file,"%i %f %f %f\n",i+1+nV,D[i]->x,D[i]->y,D[i]->z); 
+        v.push_back(D[i]); D[i]->index = i+1+nV;
     }
     fprintf(file,"$EndNodes\n");
 
-    // Writing Elements
+    /* Writing Elements */
     if(verbose>0){printf("> Writing Elements\n");}
     fprintf(file,"$Elements\n");
-    fprintf(file,"%i\n",nTrng);
-    for(int i = 0; i<nTrng ; i++)
+    fprintf(file,"%i\n",nT);
+    for(int i = 0; i<nT ; i++)
     {
         a = T[i]->V[0]->index; //find(v.begin(),v.end(),T[i]->V[0])-v.begin()+1;
         b = T[i]->V[1]->index; //find(v.begin(),v.end(),T[i]->V[1])-v.begin()+1;
@@ -120,20 +118,18 @@ void write_gmsh_txt(vector<Vertex*> &S, vector<Face*> &T, vector<Vertex*> &D, co
 
     fprintf(file,"$NodeData\n"
                 "1\n\"Delaunay_triangulation\"\n"
-                "1\n0.0\n3\n0\n1\n%u\n",nVert+nSupr); 
-    for (int i=0; i<nVert; i++)
+                "1\n0.0\n3\n0\n1\n%u\n",nV+nD); 
+    for (int i=0; i<nV; i++)
         fprintf(file,"%i %f\n",i+1,S[i]->z);
-    for (int i=0; i<nSupr; i++)
-        fprintf(file,"%i %f\n",i+1+nVert,D[i]->z);
+    for (int i=0; i<nD; i++)
+        fprintf(file,"%i %f\n",i+1+nV,D[i]->z);
     fputs("$EndNodeData",file);
 
     // CLOSING file
     if(verbose>0){printf("Closing file %s\n",filename);}
     if(verbose>0){printf("\n");}
 
-
     fclose(file);
-
     return;
 }
 
@@ -144,31 +140,31 @@ void write_gmsh_Hilbert(const char* filename, vector <Vertex*> &V)
     if(file==NULL)
         MSH_ERROR("Cannot open file %s",filename);
     /* Format for gmsh: in section 9.2 MSH binary file format */
-    unsigned nVert = V.size();
+    unsigned nV = V.size();
     fprintf(file,"$MeshFormat\n"  
                 "2.2 0 %u\n"
                 "$EndMeshFormat\n"
                 "$Nodes\n"
-                "%u\n",(unsigned) sizeof(double),nVert);
-
-    for(int i=0; i<nVert; i++)
+                "%u\n",(unsigned) sizeof(double),nV);
+    /*********** Print the nodes **********/
+    for(int i=0; i<nV; i++)
     fprintf(file,"%u %.10E %.10E 0.0\n",i+1,V[i]->x,V[i]->y);
     fprintf(file,"$EndNodes\n");
     /********** End print the nodes *******/
   
-    /********** print the elements ********/
+    /********** Print the elements ********/
     fprintf(file,"$Elements\n"
-                "%u\n",nVert-1);       //
-    for(int i =0; i < nVert-1; i++)
+                 "%u\n",nV-1);
+    for(int i =0; i < nV-1; i++)
     fprintf(file,"%u 1 0 %u %u \n",i+1,i+1,i+2);
     fputs("$EndElements\n",file);
     /****** End print the elements *******/
 
-    /******** print the nodes data ******/
+    /******** Print the nodes data ******/
     fprintf(file,"$NodeData\n"
-                "1\n\"Hilbert_Sorting\"\n"
-                "1\n0.0\n3\n0\n1\n%u\n",nVert); 
-    for (int i=0; i<nVert; i++)
+                 "1\n\"Hilbert_Sorting\"\n"
+                 "1\n0.0\n3\n0\n1\n%u\n",nV); 
+    for (int i=0; i<nV; i++)
     fprintf(file,"%u %.10E\n",i+1,V[i]->z);
     fputs("$EndNodeData",file);
     fclose(file);
