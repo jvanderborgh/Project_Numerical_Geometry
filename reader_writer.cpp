@@ -64,39 +64,6 @@ void read_nodes_txt(vector<Vertex*> &S, vector<Face*> &T, const char* filename, 
         S.push_back(V); n++;
     }
     if(verbose>0){printf("> %i vertices\n",n);}
-
-    // // MAKING SUPER-TRIANGLES
-    // if(verbose>0){printf("> Making supr-trngs\n");}
-
-    // double x,y,z;
-    // x = xmax-xmin;
-    // y = ymax-ymin;
-    // double L = max(x,y);
-    // x = 0.5*(xmax+xmin);
-    // y = 0.5*(ymax+ymin);
-    // *x0 = x;
-    // *y0 = y;
-    // *xRed  = L;
-    // *yBlue = L;
-    // xmin = x-L; //printf("%f\n",xmin);
-    // xmax = x+L; //printf("%f\n",xmax);
-    // ymin = y-L; //printf("%f\n",ymin);
-    // ymax = y+L; //printf("%f\n",ymax);
-    // Vertex* T1 = new Vertex(xmin,ymin,0.0);
-    // Vertex* T2 = new Vertex(xmax,ymin,0.0);
-    // Vertex* T3 = new Vertex(xmax,ymax,0.0);
-    // Vertex* T4 = new Vertex(xmin,ymax,0.0);
-    // D.push_back(T1);
-    // D.push_back(T2);
-    // D.push_back(T3);
-    // D.push_back(T4);
-    // Face* F1 = new Face(T1,T2,T4);
-    // Face* F2 = new Face(T2,T3,T4);
-    // F1->F[1] = F2;
-    // F2->F[2] = F1;
-    // T.push_back(F1);
-    // T.push_back(F2);
-    // CLOSING file
     if(verbose>0){printf("Closing file %s\n",filename);}
     if(verbose>0){printf("\n");}
     fclose(file);
@@ -104,7 +71,7 @@ void read_nodes_txt(vector<Vertex*> &S, vector<Face*> &T, const char* filename, 
     return;
 }
 
-void write_gmsh_txt(std::vector<Vertex*> &S, std::vector<Face*> &T, vector<Vertex*> &D, const char* filename, int verbose)
+void write_gmsh_txt(vector<Vertex*> &S, vector<Face*> &T, vector<Vertex*> &D, const char* filename, int verbose)
 {
     // OPENING file
     if(verbose>0){printf("Opening file %s\n",filename);}
@@ -170,7 +137,7 @@ void write_gmsh_txt(std::vector<Vertex*> &S, std::vector<Face*> &T, vector<Verte
     return;
 }
 
-void write_gmsh_Hilbert(const char* filename, std::vector <Vertex*> &V)
+void write_gmsh_Hilbert(const char* filename, vector <Vertex*> &V)
 {
     MSH_ASSERT(filename!=NULL); // Ok compris
     FILE* file = fopen(filename,"w");  //"w" argument pour dire qu'on écrit/write un fichier
@@ -191,8 +158,8 @@ void write_gmsh_Hilbert(const char* filename, std::vector <Vertex*> &V)
   
     /********** print the elements ********/
     fprintf(file,"$Elements\n"
-                "%u\n",nVert-2);       //
-    for(int i =0; i < nVert-2; i++)
+                "%u\n",nVert-1);       //
+    for(int i =0; i < nVert-1; i++)
     fprintf(file,"%u 1 0 %u %u \n",i+1,i+1,i+2);
     fputs("$EndElements\n",file);
     /****** End print the elements *******/
@@ -205,14 +172,4 @@ void write_gmsh_Hilbert(const char* filename, std::vector <Vertex*> &V)
     fprintf(file,"%u %.10E\n",i+1,V[i]->z);
     fputs("$EndNodeData",file);
     fclose(file);
-}
-
-bool vCompare(Vertex* v1, Vertex* v2)
-{
-    for(int i=0; i<10; i++)
-    {
-        if (v1->bits[i] < v2->bits[i]) return true;
-        if (v1->bits[i] > v2->bits[i]) return false;
-    }
-    return false;
 }

@@ -8,56 +8,117 @@
 using namespace std;
 using namespace robustPredicates;
 
+
 static int verb;
 
-void superTriangles(std::vector<Face*> &T, std::vector<Vertex*> &D, double &xmin, double &xmax, double &ymin, double &ymax, double &x0, double &y0, double &xRed, double &yRed, double &xBlue, double &yBlue)
+void superTriangles(vector<Face*> &T, vector<Vertex*> &D, double &xmin, double &xmax, double &ymin, double &ymax, double &x0, double &y0, double &xRed, double &yRed, double &xBlue, double &yBlue)
 {
     // MAKING SUPER-TRIANGLES
 //    if(verbose>0){printf("> Making supr-trngs\n");}
-
     double x,y,z;
+    const double color = 0.4;  /* 0.0->Blue or 0.2->Magenta or 0.3-> Green or 0.4->Yellow or 0.5->Red */
+    const double distC = 1.0;  /* min = 0.5 =>>> max = 10.0 */
     x = xmax-xmin;
     y = ymax-ymin;
     double L = max(x,y);
-    x = 0.5*(xmax+xmin);
+    x = 0.5*(xmax+xmin); 
     y = 0.5*(ymax+ymin);
+    printf("x = %f; y = %f\n",x,y);
     x0 = x;
     y0 = y;
     xRed  = L;
-    yBlue = L;
-    xmin = x-L; //printf("%f\n",xmin);
-    xmax = x+L; //printf("%f\n",xmax);
-    ymin = y-L; //printf("%f\n",ymin);
-    ymax = y+L; //printf("%f\n",ymax);
-    Vertex* T1 = new Vertex(xmin,ymin,0.0);
-    Vertex* T2 = new Vertex(xmax,ymin,0.0);
-    Vertex* T3 = new Vertex(xmax,ymax,0.0);
-    Vertex* T4 = new Vertex(xmin,ymax,0.0);
-    D.push_back(T1);
-    D.push_back(T2);
-    D.push_back(T3);
-    D.push_back(T4);
-    Face* F1 = new Face(T1,T2,T4);
-    Face* F2 = new Face(T2,T3,T4);
+    yBlue = L;  // A RECHANGER
+    xmin = x-distC*L;
+    xmax = x+distC*L;
+    ymin = y-distC*L;
+    ymax = y+distC*L;
+    Vertex* P1 = new Vertex(xmin,ymin,color); /* P2 **** P3 */
+    Vertex* P2 = new Vertex(xmin,ymax,color); /*            */
+    Vertex* P3 = new Vertex(xmax,ymax,color); /*            */
+    Vertex* P4 = new Vertex(xmax,ymin,color); /* P1 **** P4 */
+    D.push_back(P1);
+    D.push_back(P2);
+    D.push_back(P3);
+    D.push_back(P4);
+    Face* F1 = new Face(P1,P2,P4);
+    Face* F2 = new Face(P2,P3,P4);
     F1->F[1] = F2;
     F2->F[2] = F1;
     T.push_back(F1);
     T.push_back(F2);
 }
-void computeAdjacencies (std::vector<Face*> &cavity)
+
+/********  Hilbert ********/
+void HilbertCoord(double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, Vertex* V)
 {
-    std::map<Edge, std::pair<int, Face*> >edgeToFace;
+    for(int i =0; i<nbits; i++)
+    {
+        double coordRed  = (V->x-x0)*xRed  + (V->y-y0)*yRed ;
+        double coordBlue = (V->x-x0)*xBlue + (V->y-y0)*yBlue;
+        xRed /=2; yRed /=2; 
+        xBlue/=2; yBlue/=2;
+        if      (coordRed <= 0 &&coordBlue <=0 )
+        {
+            // Quadrant 0
+            x0 -=(xBlue+xRed);
+            y0 -=(yBlue+yRed);
+            swap(xRed,xBlue);
+            swap(yRed,yBlue);
+            V->bits[i] = 0;
+        }
+        else if (coordRed <=0 && coordBlue >= 0)
+        {
+            // Quadrant 1
+            x0 += (xBlue-xRed);
+            y0 += (yBlue-yRed);
+            V->bits[i] = 1 ;
+        }
+        else if (coordRed >=0 && coordBlue >= 0)
+        {
+            //Quadrant 2
+            x0 += (xBlue+xRed) ;
+            y0 += (yBlue+yRed) ;
+            V->bits[i] = 2;
+        }
+        else
+        {
+            //Quadrant 3
+            x0 += (-xBlue+xRed) ;
+            y0 += (-yBlue+yRed) ;
+            swap(xRed,xBlue) ;
+            swap(yRed,yBlue) ;
+            xBlue = - xBlue;
+            yBlue = - yBlue;
+            xRed  = - xRed ;
+            yRed  = - yRed ;
+            V->bits[i]=3      ;
+        }
+    }
+}
+bool vCompare(Vertex* v1, Vertex* v2)
+{
+    for(int i=0; i<nbits; i++)
+    {
+        if (v1->bits[i] < v2->bits[i]) return true;
+        if (v1->bits[i] > v2->bits[i]) return false;
+    }
+    return false;
+}
+
+void computeAdjacencies (vector<Face*> &cavity)
+{
+    map<Edge, pair<int, Face*> >edgeToFace;
     for(int iFace = 0; iFace<cavity.size(); iFace++)
     {
         for (int iEdge =0; iEdge<3 ; iEdge ++)
         {
             Edge edge = cavity[iFace]->getEdge(iEdge);
 
-            std::map<Edge, std::pair<int, Face*> >::iterator it = edgeToFace.find(edge);
+            map<Edge, pair<int, Face*> >::iterator it = edgeToFace.find(edge);
 
             if(it == edgeToFace.end())
             {
-                edgeToFace.insert(std::make_pair(edge,std::make_pair(iEdge,cavity[iFace])));
+                edgeToFace.insert(make_pair(edge,make_pair(iEdge,cavity[iFace])));
             }
             else
             {
@@ -69,7 +130,7 @@ void computeAdjacencies (std::vector<Face*> &cavity)
     }
 }
 
-void delaunayCavity(Face *f, Vertex *v, std::vector<Face*> &cavity, std::vector<Edge> &bnd, std::vector<Face*> &otherSide)
+void delaunayCavity(Face *f, Vertex *v, vector<Face*> &cavity, vector<Edge> &bnd, vector<Face*> &otherSide)
 {
     if(f->deleted) return;  // marked as checked (otherSide)
     f->deleted = true;
@@ -116,13 +177,8 @@ if(verb>3)
     }
 }
 
-int orientationTest(Vertex *a, Vertex *b,Vertex *c){
-	/* FIRST VERSION */
-    // double Or = (a->x-c->x)*(b->y-c->y) - (a->y-c->y)*(b->x-c->x);
-    // printf("Or0 = %.3f\n",Or);
-    // if(Or>0.0) return +1;
-    // if(Or<0.0) return -1;
-    // return 0;
+int orientationTest(Vertex *a, Vertex *b,Vertex *c)
+{
     /* ROBST VERSION */
     double A[2]; A[0] = a->x; A[1] = a->y; // printf("A = %.3E, %.3E\n",A[0],A[1]);
     double B[2]; B[0] = b->x; B[1] = b->y; // printf("B = %.3E, %.3E\n",B[0],B[1]);
@@ -133,35 +189,34 @@ int orientationTest(Vertex *a, Vertex *b,Vertex *c){
     return 0;
 }
 
-Face* lineSearch(Face *f, Vertex *v){
-//    int step = 0;
+Face* lineSearch(Face *f, Vertex *v)
+{
     while(1)
     {
         //printf("%d \n",step);
         if(f==    NULL   ) return NULL; // If none... end ?
         if(f->inCircle(v))
         {
-if(verb>3)
-{
-          printf(">>>>>> (%.3E,%.3E,%.3E)(%.3E,%.3E,%.3E)(%.3E,%.3E,%.3E)\n",
-              f->V[0]->x,f->V[0]->y,f->V[0]->z,
-              f->V[1]->x,f->V[1]->y,f->V[1]->z,
-              f->V[2]->x,f->V[2]->y,f->V[2]->z);   
-}
-//            printf("%i ",step);
+            if(verb>3)
+            {
+                printf(">>>>>> (%.3E,%.3E,%.3E)(%.3E,%.3E,%.3E)(%.3E,%.3E,%.3E)\n",
+                f->V[0]->x,f->V[0]->y,f->V[0]->z,
+                f->V[1]->x,f->V[1]->y,f->V[1]->z,
+                f->V[2]->x,f->V[2]->y,f->V[2]->z);   
+            }
             return f;    // That's the one :)
         }
         Vertex c = f->centroid();       // just in order to have a point in the triangle
 
         for(int iNeigh=0; iNeigh<3; iNeigh++)
         {
-if(verb>3)
-{
-          printf(">>>>>> (%.3E,%.3E,%.3E)(%.3E,%.3E,%.3E)(%.3E,%.3E,%.3E)\n",
-              f->V[0]->x,f->V[0]->y,f->V[0]->z,
-              f->V[1]->x,f->V[1]->y,f->V[1]->z,
-              f->V[2]->x,f->V[2]->y,f->V[2]->z);   
-}
+            if(verb>3)
+            {
+                printf(">>>>>> (%.3E,%.3E,%.3E)(%.3E,%.3E,%.3E)(%.3E,%.3E,%.3E)\n",
+                f->V[0]->x,f->V[0]->y,f->V[0]->z,
+                f->V[1]->x,f->V[1]->y,f->V[1]->z,
+                f->V[2]->x,f->V[2]->y,f->V[2]->z);   
+            }
             Edge e = f->getEdge(iNeigh);
             // looking for the direction of the search with orientation (crossing)
             if( orientationTest (&c, v, e.vmin) *
@@ -170,69 +225,21 @@ if(verb>3)
                 orientationTest (e.vmin, e.vmax, &c) *
                 orientationTest (e.vmin, e.vmax,  v) <=0)
             {
-if(verb>3)
-{
-          printf(">>>>>> (%.3E,%.3E)(%.3E,%.3E)\n",
-              e.vmin->x,e.vmin->y,
-              e.vmax->x,e.vmax->y);   
-}
+                if(verb>3)
+                {
+                    printf(">>>>>> (%.3E,%.3E)(%.3E,%.3E)\n",
+                    e.vmin->x,e.vmin->y,
+                    e.vmax->x,e.vmax->y);   
+                }
                 f = f->F[iNeigh];   // while(1) redo lineSearch until return
                 break;              // break in order to redo the lineSearch
             }
         }
-//        step = step + 1 ;
     }
 }
 
 
-void HilbertCoord(double x0, double y0, double xRed, double yRed, double xBlue, double yBlue, Vertex* V, int nbits)
-{
-    for(int i =0; i<nbits; i++)
-    {
-        double coordRed = (V->x-x0)*xRed  + (V->y-y0)*yRed ;
-        double coordBlue= (V->x-x0)*xBlue + (V->y-y0)*yBlue;
-        xRed /= 2; yRed /= 2; xBlue /=2; yBlue /=2;
-        if      (coordRed <= 0 &&coordBlue <=0 )
-        {
-            // Quadrant 0
-            x0 -=(xBlue+xRed);
-            y0 -=(yBlue+yRed);
-            swap(xRed,xBlue);
-            swap(yRed,yBlue);
-            V->bits[i] = 0;
-        }
-        else if (coordRed <=0 && coordBlue >= 0)
-        {
-            // Quadrant 1
-            x0 += (xBlue-xRed);
-            y0 += (yBlue-yRed);
-            V->bits[i] = 1 ;
-        }
-        else if (coordRed >=0 && coordBlue >= 0)
-        {
-            //Quadrant 2
-            x0 += (xBlue+xRed) ;
-            y0 += (yBlue+yRed) ;
-            V->bits[i] = 2;
-        }
-        else
-        {
-            //Quadrant 3
-            x0 += (-xBlue+xRed) ;
-            y0 += (-yBlue+yRed) ;
-            swap(xRed,xBlue) ;
-            swap(yRed,yBlue) ;
-            xBlue = - xBlue;
-            yBlue = - yBlue;
-            xRed  = - xRed ;
-            yRed  = - yRed ;
-            V->bits[i]=3      ;
-        }
-    }
-}
-
-
-void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T, int verbose){
+void delaunayTrgl(vector<Vertex*> &S, vector<Face*> &T, int verbose){
 
     verb = verbose;
 
@@ -244,9 +251,9 @@ void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T, int verbose){
     // Choose the first non-delaunay so we can find the cavity
     Face *f = lineSearch(T[T.size()-1], S[iP]);
 
-    std::vector<Face*> cavity   ; // push non-delaunay triangles
-    std::vector<Edge> bnd       ; // so we can build new triang.
-    std::vector<Face*> otherSide; // so we can compute adjencies
+    vector<Face*> cavity   ; // push non-delaunay triangles
+    vector<Edge> bnd       ; // so we can build new triang.
+    vector<Face*> otherSide; // so we can compute adjencies
 
     if(verbose>2){printf("%i >>> Pushing in cavity\n",iP);}
     delaunayCavity(f, S[iP], cavity, bnd, otherSide);
@@ -272,8 +279,10 @@ void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T, int verbose){
     }
 
     if(verbose>2){printf("%i >>> Constructing triangles (vrt) \n",iP);}
+    
     unsigned int cSize = cavity.size();
-    for(int i=cSize; i<cSize+2; i++){
+    for(int i=cSize; i<cSize+2; i++)
+    {
         /*------------------------------
         For each non-delaunay triangle :
         -re-initialize bool deleted
@@ -292,14 +301,5 @@ void delaunayTrgl(std::vector<Vertex*> &S, std::vector<Face*> &T, int verbose){
         otherSide[i]->deleted = false; if(otherSide[i])cavity.push_back(otherSide[i]);
     }
     computeAdjacencies(cavity);
-
-// In order to print the triangles and to check them
-// for(vector<Face*>::iterator i = T.begin(); i != T.end();++i)
-// {
-//     printf(">>>>>> Triangle : (%.3E,%.3E,%.3E)(%.3E,%.3E,%.3E)(%.3E,%.3E,%.3E)\n",
-//         (*i)->V[0]->x,(*i)->V[0]->y,(*i)->V[0]->z,
-//         (*i)->V[1]->x,(*i)->V[1]->y,(*i)->V[1]->z,
-//         (*i)->V[2]->x,(*i)->V[2]->y,(*i)->V[2]->z);
-// }
     }
 }

@@ -11,14 +11,12 @@
 using namespace std;
 using namespace robustPredicates;
 
-const int nbits = 8;
-
 int main(int argc, char const *argv[])
 {
     int verbose(1);
     const char* input  = "In/Exemple3.in";
     const char* output = "Out/Triangle.out";
-    std::chrono::time_point<std::chrono::system_clock> start,end;
+    chrono::time_point<chrono::system_clock> start,end;
     printf("-----  -------============-------  -----\n");
     printf("|---    ------Main running------    ---|\n");
     printf("-----  -------============-------  -----\n\n");
@@ -36,8 +34,11 @@ int main(int argc, char const *argv[])
 
     /****** Begin HILBERT *******/
     for(int i = 0 ; i < vect_V.size() ; i++) 
-    { 
-        HilbertCoord(x0,y0,xRed,yRed,xBlue,yBlue,vect_V[i],nbits); 
+    {
+//        HilbertCoord(x0,y0,xRed,yRed,xBlue,yBlue,vect_V[i]); 
+        x0 = y0 = 0;
+        
+        HilbertCoord(x0,y0,xRed,yRed,xBlue,yBlue,vect_V[i]); 
     }
     sort(vect_V.begin(),vect_V.end(),vCompare);
     write_gmsh_Hilbert("Out/Hilbert.out",vect_V); /* +4 pour les super triangles!!! */
@@ -60,10 +61,10 @@ int main(int argc, char const *argv[])
 
     /* Delaunay triangulation */
     if(verbose>0){printf("Starting Delaunay triangulation\n");}
-    start = std::chrono::system_clock::now();
+    start = chrono::system_clock::now();
     delaunayTrgl(vect_V,vect_F,verbose);
-    end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end-start;
+    end = chrono::system_clock::now();
+    chrono::duration<double> elapsed_seconds = end-start;
     if(verbose>0){printf("\n");}
     if(verbose>0){printf("Delaunay triangulation ended\n");}
     if(verbose>0){printf("------------------%.3Es \n", elapsed_seconds.count());}
@@ -71,6 +72,7 @@ int main(int argc, char const *argv[])
     /* Writing file */
     write_gmsh_txt(vect_V,vect_F,vect_D,output,verbose);
     // END
-    printf("~~~~----------------------~~~~   THE END ~~~~~----------------------~~~~");
-    return 0;
+    printf("-----  -------============-------  -----\n");
+    printf("|---    ------   The END  ------    ---|\n");
+    printf("-----  -------============-------  -----\n\n");    return 0;
 }
